@@ -2,6 +2,12 @@
   "extends": "airbnb/base",
   "rules": {
     "no-underscore-dangle" : "off",
-	"no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-tabs": "warn",
+    "max-classes-per-file": "warn",
+    "no-use-before-define": "warn",
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "eqeqeq": "warn"
   }
 }
