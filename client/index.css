@@ -1,0 +1,58 @@
+* {
+	color: white;
+	background-color: black;
+}
+body {
+	width: 100%;
+	box-sizing: border-box;
+	word-wrap: break-word;
+}
+body > * {
+	max-width: 100%;
+	word-wrap: break-word;
+}
+#xhrResults {
+	white-space: pre;
+}
+
+/* Show Listings */
+/* GRID */
+.showListing .showName {
+	grid-area: showName;
+	justify-self: center;
+}
+.showListing .showThumbnail {
+	grid-area: thumb;
+	justify-self: center;
+}
+.showListing .showEpisodeListing {
+	grid-area: epiListing;
+}
+.showListing {
+	display: grid;
+	grid-template-columns: 25% 75%;
+	grid-template-areas: 
+		"showName epiListing"
+		"thumb epiListing"
+		". epiListing";
+}
+
+.showListing .showName {
+	display: inline;
+}
+
+.showListing .showThumbnail {
+	width: 75%;
+}
+
+.showListing .showEpisodeListing .episode {
+	display: inline-flex;
+	width: 100%;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+}
+.showListing .showEpisodeListing .episode .episodeNumber,
+.showListing .showEpisodeListing .episode .episodeName,
+.showListing .showEpisodeListing .episode .episodeLength {
+	display: inline;
+}

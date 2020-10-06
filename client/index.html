@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<head lang="en-US">
+	<title>Project 1</title>
+	<link rel="stylesheet" href="/index.css" type="text/css" />
+
+	<script src="./index.js" type="module"></script>
+	<!-- <script src="./Show.js"></script> -->
+	<!-- <script src="./index.js"></script> -->
+	<script type="module">
+	// <script>
+		import * as indMod from './index.js';
+		const dqs = document.querySelector.bind(document);
+		window.onload = () => {
+			// importScripts("./index.js");
+			let xhr;
+			// SETUP FUNCTIONALITY
+			const episodeDOMTemplate = document.createElement('div');
+
+			let currLabel = document.createElement('label');
+			currLabel.htmlFor = 'epiName';
+			currLabel.innerHTML = "Episode Name";
+			episodeDOMTemplate.appendChild(currLabel);
+
+			let curr = document.createElement('input');
+			curr.className = 'epiName';
+			curr.name = 'epiName';
+			curr.type = 'text';
+			currLabel.appendChild(curr);
+
+			currLabel = document.createElement('label');
+			currLabel.htmlFor = 'epiSeason';
+			currLabel.innerHTML = "Episode Season";
+			episodeDOMTemplate.appendChild(currLabel);
+
+			curr = document.createElement('input');
+			curr.className = 'epiSeason';
+			curr.name = 'epiSeason';
+			curr.type = 'number';
+			curr.min = 1;
+			curr.value = 1;
+			currLabel.appendChild(curr);
+
+			currLabel = document.createElement('label');
+			currLabel.htmlFor = 'epiNumber';
+			currLabel.innerHTML = "Episode Number";
+			episodeDOMTemplate.appendChild(currLabel);
+
+			curr = document.createElement('input');
+			curr.className = 'epiNumber';
+			curr.name = 'epiNumber';
+			curr.type = 'number';
+			curr.min = 1;
+			curr.value = 1;
+			currLabel.appendChild(curr);
+
+			currLabel = document.createElement('label');
+			currLabel.htmlFor = 'epiLength';
+			currLabel.innerHTML = "Episode Length";
+			episodeDOMTemplate.appendChild(currLabel);
+
+			curr = document.createElement('input');
+			curr.className = 'epiLength';
+			curr.name = 'epiLength';
+			curr.type = 'time';
+			curr.step = '1';
+			curr.value = "00:00:00";
+			currLabel.appendChild(curr);
+
+			dqs(`#numEpisodes`).onchange = (e) => {
+				if (dqs(`#newShowEpisodes`).children.length != dqs(`#numEpisodes`).value) {
+					dqs(`#newShowEpisodes`).innerHTML = "";
+					for (let i = 0; i < dqs(`#numEpisodes`).value; i++)
+						dqs(`#newShowEpisodes`).appendChild(episodeDOMTemplate.cloneNode(true));
+				}
+			};
+
+			dqs(`#launchXHR`).onclick = (e) => {
+				switch (dqs("#url").value) {
+					case "/getShowsArr":
+						xhr = new XMLHttpRequest();
+						xhr.onload = (e) => {
+							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+							// let shows = JSON.parse(xhr.responseText);
+							// shows.forEach(e => {
+							// 	const currElem = document.createElement('span');
+							// 	let elemChild = document.createElement('p');
+							// 	elemChild.innerHTML = `Name: ${e.name}`;
+							// 	currElem.appendChild(elemChild);
+							// 	elemChild = document.createElement('p');
+							// 	elemChild.innerHTML = `Episode 1: ${e.episodes[0].name}`;
+							// 	currElem.appendChild(elemChild);
+							// 	dqs('#shows').innerHTML = "";
+							// 	dqs('#shows').appendChild(currElem);
+							// });
+							dqs("#shows").innerHTML = "";
+							// dqs("#shows").appendChild(formatShows(JSON.parse(xhr.responseText)));
+							// dqs("#shows").appendChild(indMod.formatShows(JSON.parse(xhr.responseText)));
+							indMod.formatShows(JSON.parse(xhr.responseText), dqs("#shows"));
+						};
+						xhr.open('GET', '/getShowsArr');
+						xhr.send();
+						break;
+					case "/getShows":
+						xhr = new XMLHttpRequest();
+						xhr.onload = (e) => {
+							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+							let shows = JSON.parse(xhr.responseText);
+							// shows.forEach(e => {
+							// 	const currElem = document.createElement('span');
+							// 	let elemChild = document.createElement('p');
+							// 	elemChild.innerHTML = `Name: ${e.name}`;
+							// 	currElem.appendChild(elemChild);
+							// 	elemChild = document.createElement('p');
+							// 	elemChild.innerHTML = `Episode 1: ${e.episodes[0].name}`;
+							// 	currElem.appendChild(elemChild);
+							// 	dqs('#shows').innerHTML = "";
+							// 	dqs('#shows').appendChild(currElem);
+							// });
+						};
+						xhr.open('GET', '/getShows');
+						xhr.send();
+						break;
+					case "/postShow":
+						xhr = new XMLHttpRequest();
+						xhr.onload = () => dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+						xhr.open("POST", dqs('#url').value);
+						xhr.send(JSON.stringify({
+							name: 		dqs('#showName').value,
+							thumbURL:	dqs('#thumbURL').value,
+							episodes:	(() => {
+								let retVal = [];
+								for (let i = 0; i < dqs('#newShowEpisodes').children.length; i++) {
+									const elem = dqs('#newShowEpisodes').children[i];
+									retVal.push({
+										name:	elem.children[0].children[0].value,
+										season:	elem.children[1].children[0].value,
+										number:	elem.children[2].children[0].value,
+										length:	elem.children[3].children[0].value,
+									});
+								}
+								return retVal;
+							})()
+						}));
+						break;
+					case "/getUUIDTest":
+						xhr = new XMLHttpRequest();
+						xhr.onload = (args) => dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+						xhr.open('GET', dqs('#url').value);
+						xhr.send();
+						break;
+					default:
+						break;
+				}
+			};
+
+			dqs(`#launchXHR`).onclick();
+		};
+	</script>
+</head>
+<body>
+	<select id="url">
+		<option value="/getShowsArr" selected>/getShowsArr</option>
+		<option value="/getShows">/getShows</option>
+		<option value="/postShow">/postShow</option>
+		<option value="/getUUIDTest">/getUUIDTest</option>
+	</select>
+	<div id="newShow">
+		<label for="showName">Show Name</label>
+		<input id="showName" name="showName" type="text" />
+		<label for="thumbURL">Thumbnail URL</label>
+		<input id="thumbURL" name="thumbURL" type="text" />
+		<label for="numEpisodes">Number of Episodes</label>
+		<input id="numEpisodes" name="numEpisodes" type="number" min="0" max="20" />
+		<div id="newShowEpisodes"></div>
+	</div>
+	<button id="launchXHR">Launch XHR</button>
+	<div id="shows"></div>
+	<div id="xhrResults"></div>
+	<p>FINISH THIS</p>
+</body>
