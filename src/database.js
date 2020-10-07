@@ -94,6 +94,18 @@ const shows = {
 				length: "26:00",
 			},
 			{
+				name: "Episode 5",
+				season: 1,
+				number: 5,
+				length: "25:00",
+			},
+			{
+				name: "Episode 6",
+				season: 1,
+				number: 6,
+				length: "26:00",
+			},
+			{
 				name: "S2Episode 1",
 				season: 2,
 				number: 1,
@@ -115,6 +127,18 @@ const shows = {
 				name: "S2Episode 4",
 				season: 2,
 				number: 4,
+				length: "26:00",
+			},
+			{
+				name: "S2Episode 5",
+				season: 2,
+				number: 5,
+				length: "25:00",
+			},
+			{
+				name: "S2Episode 6",
+				season: 2,
+				number: 6,
 				length: "26:00",
 			},
 		],

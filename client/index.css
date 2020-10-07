@@ -1,29 +1,43 @@
 * {
 	color: white;
-	background-color: black;
+	/* background-color: black; */
+	background-color: rgba(32, 32, 32, 1);
+}
+
+/* #region Remove Horizontal Scroll */
+html {
+	margin: 0;
+	padding: 0;
 }
 body {
 	width: 100%;
+	margin: 0;
+	padding: 8px;
 	box-sizing: border-box;
-	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 body > * {
 	max-width: 100%;
-	word-wrap: break-word;
+	box-sizing: border-box;
+	overflow-wrap: break-word;
 }
+/* #endregion */
+
 #xhrResults {
-	white-space: pre;
+	white-space: pre-wrap;
 }
 
-/* Show Listings */
-/* GRID */
+/* #region Show Listings */
+/* #region GRID */
 .showListing .showName {
 	grid-area: showName;
-	justify-self: center;
+	/* justify-self: center; */
+	justify-self: flex-start;
 }
 .showListing .showThumbnail {
 	grid-area: thumb;
 	justify-self: center;
+	/* justify-self: flex-start; */
 }
 .showListing .showEpisodeListing {
 	grid-area: epiListing;
@@ -36,13 +50,44 @@ body > * {
 		"thumb epiListing"
 		". epiListing";
 }
+/* #endregion */
+
+.showListing .showName {
+	/* padding-left: 1.5em; */
+	justify-self: center;
+}
+.showListing {
+	box-sizing: border-box;
+	margin: .5em auto;
+	padding: 1.5em;
+	padding-left: 0;
+
+	border-radius: 10px;
+	background-color: rgba(64, 64, 64, 1);
+}
+.showListing * {
+	background-color: rgba(64, 64, 64, 1);
+}
+.showListing .showEpisodeListing {
+	border-radius: 10px;
+	padding: 5px 5px 5px;
+}
+.showListing .showEpisodeListing, .showListing .showEpisodeListing * {
+	border-radius: 10px;
+	background-color: rgba(48, 48, 48, 1);
+}
 
 .showListing .showName {
 	display: inline;
+	margin: 0;
+	/* padding: .5em; */
+
+	font-size: x-large;
 }
 
 .showListing .showThumbnail {
 	width: 75%;
+	padding-top: 1em;
 }
 
 .showListing .showEpisodeListing .episode {
@@ -55,4 +100,7 @@ body > * {
 .showListing .showEpisodeListing .episode .episodeName,
 .showListing .showEpisodeListing .episode .episodeLength {
 	display: inline;
+	
+	margin: 3px 2px;
 }
+/* #endregion */
