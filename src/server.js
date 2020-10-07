@@ -5,8 +5,7 @@ const responses = require('./responses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const onRequest = (req, res) =>
-{
+const onRequest = (req, res) => {
 	const jumpTable = {
 		GET: {
 			"/"				: responses.getHTML,
@@ -23,11 +22,11 @@ const onRequest = (req, res) =>
 			"/postShow"		: responses.postShow,
 		},
 		HEAD: {
-			
-		}
+
+		},
 	};
 	const reqMethod = (req.method && jumpTable[req.method]) ? req.method : "GET";
-	
+
 	const parsedURL = new url.URL(req.url, `http://${req.headers.host}`);
 
 	console.log(`${req.url} - ${parsedURL.pathname} (${req.method})`);

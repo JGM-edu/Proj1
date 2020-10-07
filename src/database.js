@@ -3,14 +3,16 @@
  */
 
 const { v4: uuidv4 } = require('uuid');
-const { Show: Show, Episode: Episode } = require('./Show.js');
+// const { Show: Show, Episode: Episode } = require('./Show.js');
+const Show = require('./Show.js');
+const Episode = require('./Episode.js');
 
 /**
- * 
+ *
  * @type {String[]}
  */
 const userGUIDs = [
-	"demouser"
+	"demouser",
 ];
 
 /**
@@ -25,19 +27,19 @@ const users = {
 			{
 				showID: "test",
 				episodesSeen: [
-					"epi1"
-				]
-			}
+					"epi1",
+				],
+			},
 		],
-	}
+	},
 };
 
 /**
- * 
+ *
  */
 const showGUIDs = [
 	"test",
-	"test2"
+	"test2",
 ];
 
 /**
@@ -61,7 +63,7 @@ const shows = {
 				number: 2,
 				length: "26:00",
 			},
-		]
+		],
 	},
 	"test2": {
 		name: "TestShow2",
@@ -115,40 +117,36 @@ const shows = {
 				number: 4,
 				length: "26:00",
 			},
-		]
-	}
+		],
+	},
 };
 
-
 /**
- * 
+ *
  * @param {String} id The id of the user to get.
- * @returns {Object} 
+ * @returns {Object}
  */
 const getUser = (id) => users[id];
 
 /**
- * 
+ *
  * @param {String} id The id of the show to get.
- * @returns {Object} 
+ * @returns {Object}
  */
 const getShow = (id) => shows[id];
 
 /**
- * 
- * @returns {Object} 
+ *
+ * @returns {Object}
  */
 const getShows = () => shows;
 
 /**
- * 
- * @returns {Object} 
+ *
+ * @returns {Object}
  */
 const getShowsArr = () => {
-	let retVal = showGUIDs.map((e) =>
-	{
-		return shows[e];
-	});
+	const retVal = showGUIDs.map((e) => shows[e]);
 	return retVal;
 };
 
@@ -158,21 +156,16 @@ const getShowsArr = () => {
 // 	shows[showGUIDs.length - 1] = show;
 // };
 
-const addShow = (show) =>
-{
+const addShow = (show) => {
 	showGUIDs.push(uuidv4());
 	shows[showGUIDs.length - 1] = show;
 };
 
-const createShow = (name, thumbURL, episodes) =>
-{
+const createShow = (name, thumbURL, episodes) => {
 	shows[uuidv4()] = new Show(name, thumbURL, episodes);
 };
 
-const testUUID = () =>
-{
-	return uuidv4();
-}
+const testUUID = () => uuidv4();
 
 module.exports = {
 	getUser,

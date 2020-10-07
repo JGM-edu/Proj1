@@ -3,11 +3,17 @@
   "rules": {
     "no-underscore-dangle" : "off",
     "no-plusplus": "off",
-    "no-tabs": "warn",
-    "max-classes-per-file": "warn",
+    "no-tabs": "off",
+    "max-classes-per-file": "error",
     "no-use-before-define": "warn",
     "no-unused-vars": "warn",
     "no-console": "warn",
-    "eqeqeq": "warn"
+	"eqeqeq": "warn",
+	"key-spacing": "off",
+	"quotes": "off",
+	"quote-props": "off",
+	"brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+
+    "indent": ["error", "tab"]
   }
 }
