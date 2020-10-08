@@ -2,16 +2,16 @@
  * @module database
  */
 
-//#region Imports
+// #region Imports
 const { v4: uuidv4 } = require('uuid');
 // const { Show: Show, Episode: Episode } = require('./Show.js');
 const Show = require('./Show.js');
 const Episode = require('./Episode.js');
 const User = require('./User.js');
-//#endregion
+// #endregion
 
-//#region Storage
-//#region Persistant
+// #region Storage
+// #region Persistant
 /**
  *
  * @type {String[]}
@@ -37,8 +37,8 @@ const users = {
 			},
 		],
 		'toWatch': [
-			'test2'
-		]
+			'test2',
+		],
 	},
 };
 
@@ -152,22 +152,22 @@ const shows = {
 		],
 	},
 };
-//#endregion
-//#region Session
+// #endregion
+// #region Session
 /**
- * 
+ *
  */
-const activeSessionsGUIDs = [/* *currID* */];
+let activeSessionsGUIDs = [/* *currID* */];
 /**
- * 
+ *
  */
 const activeSessions = { /* *currID*: *corrosponding username*, ... */ };
-//#endregion
-//#endregion
+// #endregion
+// #endregion
 
-//#region Helper Functions
+// #region Helper Functions
 /**
- * 
+ *
  * @returns {String} A generated id.
  */
 const testUUID = () => uuidv4();
@@ -177,7 +177,7 @@ const testUUID = () => uuidv4();
  * @param {String} uName The name to check.
  * @returns {Boolean} True if taken, false otherwise.
  */
-const isUsernameTaken = (uName) => (users[uName]) ? true : false;
+const isUsernameTaken = (uName) => (!!(users[uName]));
 
 /**
  * Checks if the specified username is usable (currently only means not taken).
@@ -185,10 +185,10 @@ const isUsernameTaken = (uName) => (users[uName]) ? true : false;
  * @returns {Boolean} True if usable, false otherwise.
  */
 const isValidUsername = (uName) => isUsernameTaken(uName);
-//#endregion
+// #endregion
 
-//#region Gets
-//#region Get User Info
+// #region Gets
+// #region Get User Info
 /**
  *
  * @param {String} id The id of the user to get.
@@ -207,8 +207,8 @@ const getUsers = () => users;
  * @returns {User[]} An array of the users.
  */
 const getUsersArr = () => userGUIDs.map((e) => users[e]);
-//#endregion
-//#region Get Show Info
+// #endregion
+// #region Get Show Info
 /**
  *
  * @param {String} id The id of the show to get.
@@ -227,24 +227,21 @@ const getShows = () => shows;
  * @returns {Show[]}
  */
 const getShowsArr = () => showGUIDs.map((e) => shows[e]);
-//#endregion
-//#endregion
+// #endregion
+// #endregion
 
 /**
- * 
- * @param {User} user 
+ *
+ * @param {User} user
  */
-const addUser = (user) =>
-{
-	if (isUsernameTaken(user.username))
-		throw new Error("The given username is taken.");
+const addUser = (user) => {
+	if (isUsernameTaken(user.username)) throw new Error("The given username is taken.");
 	userGUIDs.push(user.username);
 	users[user.username] = user;
 };
 
 const createUser = (username, password) => {
-	if (isUsernameTaken(username))
-		throw new Error("The given username is taken.");
+	if (isUsernameTaken(username)) throw new Error("The given username is taken.");
 	else {
 		userGUIDs.push(username);
 		users[username] = new User(username, password);
@@ -254,8 +251,8 @@ const createUser = (username, password) => {
 };
 
 /**
- * 
- * @param {Show} show 
+ *
+ * @param {Show} show
  */
 const addShow = (show) => {
 	showGUIDs.push(uuidv4());
@@ -264,10 +261,10 @@ const addShow = (show) => {
 };
 
 /**
- * 
- * @param {String} name 
- * @param {String} thumbURL 
- * @param {Episode[]} episodes 
+ *
+ * @param {String} name
+ * @param {String} thumbURL
+ * @param {Episode[]} episodes
  * @returns {String} The created show's ID.
  */
 const createShow = (name, thumbURL, episodes) => {
@@ -276,42 +273,43 @@ const createShow = (name, thumbURL, episodes) => {
 	return showGUIDs[showGUIDs.length - 1];
 };
 
-//#region USER PROFILE
+// #region USER PROFILE
 /**
- * 
- * @param {String} username 
- * @param {String} [currSessionID = undefined] 
+ *
+ * @param {String} username
+ * @param {String} [currSessionID = undefined]
  * @returns {String} The new Session ID required for all user-specific actions.
  */
-const assignNewSessionID = (username, currSessionID = undefined) =>
-{
-	activeSessionsGUIDs = activeSessionsGUIDs.filter((val) => val != currSessionID);
-	activeSessions[currSessionID] = undefined;
+const assignNewSessionID = (username, oldSessionID = undefined) => {
+	activeSessionsGUIDs = activeSessionsGUIDs.filter((val) => val != oldSessionID);
+	activeSessions[oldSessionID] = undefined;
+	let currSessionID;
 	do {
 		currSessionID = uuidv4();
-	} while (activSessions[currSessionID]);
+	} while (activeSessions[currSessionID]);
 	activeSessionsGUIDs.push(currSessionID);
 	activeSessions[currSessionID] = username;
 	return currSessionID;
-}
+};
 
 /**
- * 
- * @param {String} username 
- * @param {String} password 
+ *
+ * @param {String} username
+ * @param {String} password
  * @returns {String} The Session ID required for all user-specific actions.
  */
 const logInUser = (username, password) => {
 	if (users[username] && users[username].password && users[username].password == password) {
-		let registeredSessions = activeSessionsGUIDs.filter((elem) => activeSessions[elem] == username);
-		if (registeredSessions.length != 0)
-			registeredSessions.forEach((elem) => activeSessions[elem] = undefined);
+		const registeredSessions = activeSessionsGUIDs.filter((e) => activeSessions[e] == username);
+		if (registeredSessions.length != 0) {
+			registeredSessions.forEach((e) => { activeSessions[e] = undefined; });
+		}
 		return assignNewSessionID(username);
 	}
-	else if (!users[username]){
+	if (!users[username]) {
 		throw new Error("The specified user does not exist.");
 	}
-	else if (users[username].password != password){
+	else if (users[username].password != password) {
 		throw new Error("The password is incorrect.");
 	}
 	else {
@@ -320,14 +318,13 @@ const logInUser = (username, password) => {
 };
 
 /**
- * 
+ *
  * @param {String} sessionID The id of the client's session.
  * @param {String} username The username of the client
  * @param {String} showID The id of the show to add
- * @throws {Error} 
+ * @throws {Error}
  */
-const addShowToWatchlist = (sessionID, username, showID) =>
-{
+const addShowToWatchlist = (sessionID, username, showID) => {
 	if (!(activeSessions[sessionID] == username)) {
 		throw new Error("Session ID is not registered to given username.");
 	}
@@ -340,8 +337,8 @@ const addShowToWatchlist = (sessionID, username, showID) =>
 	else {
 		users[username].toWatch.push(showID);
 	}
-}
-//#endregion
+};
+// #endregion
 
 module.exports = {
 	getUser,

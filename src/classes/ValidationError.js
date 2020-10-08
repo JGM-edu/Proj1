@@ -1,41 +1,39 @@
 /** @module ValidationError */
 /** @class */
-class ValidationError extends Error
-{
-	constructor(message, obj, invalidPropertyName)
-	{
+class ValidationError extends Error {
+	constructor(message, obj, invalidPropertyName) {
 		super(message);
 		/**
-		 * 
+		 *
 		 */
 		this.invalidPropertyName = invalidPropertyName;
 		/**
-		 * 
+		 *
 		 */
 		this.invalidProperty = obj[invalidPropertyName];
 		if (obj.sessionID) {
 			/**
-			 * 
+			 *
 			 */
-			this.sessionID = sessionID;
+			this.sessionID = obj.sessionID;
 		}
 		if (obj.username) {
 			/**
-			 * 
+			 *
 			 */
-			this.username = username;
+			this.username = obj.username;
 		}
 		if (obj.password) {
 			/**
-			 * 
+			 *
 			 */
-			this.password = password;
+			this.password = obj.password;
 		}
 		if (obj.showID) {
 			/**
-			 * 
+			 *
 			 */
-			this.showID = showID;
+			this.showID = obj.showID;
 		}
 	}
 }
