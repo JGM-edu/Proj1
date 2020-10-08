@@ -23,6 +23,15 @@ body > * {
 }
 /* #endregion */
 
+/* #region Simple Things */
+.requiredField {
+	border: 3px solid red;
+}
+	.requiredField:active {
+		border: initial;
+	}
+/* #endregion */
+
 #xhrResults {
 	white-space: pre-wrap;
 }

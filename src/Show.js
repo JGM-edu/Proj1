@@ -1,5 +1,6 @@
 const Episode = require('./Episode.js');
-
+/** @module Show */
+/** @class */
 class Show {
 	/**
 	 *
@@ -70,7 +71,8 @@ class Show {
 // 	}
 // }
 
-module.exports = {
-	Show,
-	// Episode,
-};
+// module.exports = {
+// 	Show,
+// 	// Episode,
+// };
+module.exports = Show;

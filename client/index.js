@@ -3,15 +3,6 @@
 // import { Show, Episode } from "./Show.js";
 
 const createElement = document.createElement.bind(document);
-/**
- * 
- * @param {String} str 
- * @returns {String} 
- */
-// const formatJSON = (str) =>
-// {
-// 	return JSON.stringify(JSON.parse(str), undefined, '\t');
-// }
 
 /**
  * 
@@ -78,6 +69,33 @@ const formatShows = (showArr, container = undefined) =>
 	return retVal;
 };
 
+/**
+ * 
+ * @param {*} evArgs 
+ */
+const requireInput_OnBlur = (evArgs) =>
+{
+	// document.querySelector('input').classList.remove(['requiredField']);
+	// classList.contains('requiredField')
+	// evArgs.currentTarget?.required && 
+	if (evArgs.currentTarget.value) {
+		evArgs.currentTarget.classList.remove(['requiredField']);
+	}
+	else if (!evArgs.currentTarget.classList.contains('requiredField')) {
+		evArgs.currentTarget.classList.add(['requiredField']);
+	}
+};
+
+// const requireInput_OnFocus = (evArgs) =>
+// {
+// 	// document.querySelector('input').required
+// 	// classList.contains('required')
+// 	if (evArgs.currentTarget?.required && evArgs.currentTarget.value) {
+// 		evArgs.currentTarget.classList.add(['required']);
+// 	}
+// };
+
 export {
 	formatShows,
+	requireInput_OnBlur,
 };

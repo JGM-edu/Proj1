@@ -4,16 +4,25 @@
 	<link rel="stylesheet" href="/index.css" type="text/css" />
 
 	<script src="./index.js" type="module"></script>
-	<!-- <script src="./Show.js"></script> -->
-	<!-- <script src="./index.js"></script> -->
 	<script type="module">
-	// <script>
 		import * as indMod from './index.js';
 		const dqs = document.querySelector.bind(document);
 		window.onload = () => {
-			// importScripts("./index.js");
 			let xhr;
 			// SETUP FUNCTIONALITY
+			document.querySelectorAll("[required]").forEach((e) =>
+			{
+				e.addEventListener('blur', indMod.requireInput_OnBlur);
+				// e.addEventListener('blur', (evArgs) =>
+				// {
+				// 	// document.querySelector('input').required
+				// 	// classList.contains('required')
+				// 	if (evArgs.currentTarget?.required && evArgs.currentTarget.value) {
+				// 		evArgs.currentTarget.classList.add(['required']);
+				// 	}
+				// });
+			});
+
 			const episodeDOMTemplate = document.createElement('div');
 
 			let currLabel = document.createElement('label');
@@ -22,7 +31,10 @@
 			episodeDOMTemplate.appendChild(currLabel);
 
 			let curr = document.createElement('input');
-			curr.className = 'epiName';
+			// curr.classList.add(['epiName', 'requiredField']);
+			curr.className = 'epiName requiredField';
+			// curr.addEventListener('blur', indMod.requireInput_OnBlur);
+			curr.required = true;
 			curr.name = 'epiName';
 			curr.type = 'text';
 			currLabel.appendChild(curr);
@@ -72,6 +84,7 @@
 					for (let i = 0; i < dqs(`#numEpisodes`).value; i++)
 						dqs(`#newShowEpisodes`).appendChild(episodeDOMTemplate.cloneNode(true));
 				}
+				document.querySelectorAll("[required]").forEach((e) => e.addEventListener('blur', indMod.requireInput_OnBlur));
 			};
 
 			dqs(`#launchXHR`).onclick = (e) => {
@@ -80,21 +93,7 @@
 						xhr = new XMLHttpRequest();
 						xhr.onload = (e) => {
 							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-							// let shows = JSON.parse(xhr.responseText);
-							// shows.forEach(e => {
-							// 	const currElem = document.createElement('span');
-							// 	let elemChild = document.createElement('p');
-							// 	elemChild.innerHTML = `Name: ${e.name}`;
-							// 	currElem.appendChild(elemChild);
-							// 	elemChild = document.createElement('p');
-							// 	elemChild.innerHTML = `Episode 1: ${e.episodes[0].name}`;
-							// 	currElem.appendChild(elemChild);
-							// 	dqs('#shows').innerHTML = "";
-							// 	dqs('#shows').appendChild(currElem);
-							// });
 							dqs("#shows").innerHTML = "";
-							// dqs("#shows").appendChild(formatShows(JSON.parse(xhr.responseText)));
-							// dqs("#shows").appendChild(indMod.formatShows(JSON.parse(xhr.responseText)));
 							indMod.formatShows(JSON.parse(xhr.responseText), dqs("#shows"));
 						};
 						xhr.open('GET', '/getShowsArr');
@@ -166,11 +165,11 @@
 	</select>
 	<div id="newShow">
 		<label for="showName">Show Name</label>
-		<input id="showName" name="showName" type="text" />
+		<input id="showName" name="showName" type="text" required />
 		<label for="thumbURL">Thumbnail URL</label>
 		<input id="thumbURL" name="thumbURL" type="text" />
 		<label for="numEpisodes">Number of Episodes</label>
-		<input id="numEpisodes" name="numEpisodes" type="number" min="0" max="20" />
+		<input id="numEpisodes" name="numEpisodes" type="number" min="0" max="20" value="0" />
 		<div id="newShowEpisodes"></div>
 	</div>
 	<button id="launchXHR">Launch XHR</button>
