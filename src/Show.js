@@ -8,7 +8,7 @@ class Show {
 	 * @param {String} thumbURL
 	 * @param {Episode[]} episodes
 	 */
-	constructor(name, thumbURL, episodes) {
+	constructor(name, thumbURL, episodes, id) {
 		/**
 		 *
 		 * @type {String}
@@ -24,6 +24,11 @@ class Show {
 		 * @type {Episode[]}
 		 */
 		this.episodes = episodes;
+		/**
+		 *
+		 * @type {String}
+		 */
+		this.id = id;
 	}
 
 	/**

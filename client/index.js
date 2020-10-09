@@ -23,6 +23,16 @@ const formatShows = (showArr, container = undefined) =>
 		const e = showArr[i];
 		currShow = document.createElement(showElemType);
 		currShow.className = "showListing";
+		currShow.onclick = (args) =>
+		{
+			let xhr = new XMLHttpRequest();
+			xhr.onload = (e) => {
+				document.querySelector("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+				// let shows = JSON.parse(xhr.responseText);
+			};
+			xhr.open('GET', `/addToFavList?sessionID=${window.sessionID}&username=${window.username}&showID=${e.id}`);
+			xhr.send();
+		};
 		retVal.appendChild(currShow);
 
 		currShowTitle = document.createElement(showTitleType);

@@ -8,6 +8,8 @@
 		import * as indMod from './index.js';
 		const dqs = document.querySelector.bind(document);
 		window.onload = () => {
+			window.sessionID;
+			window.username;
 			let xhr;
 			// SETUP FUNCTIONALITY
 			document.querySelectorAll("[required]").forEach((e) =>
@@ -89,16 +91,6 @@
 
 			dqs(`#launchXHR`).onclick = (e) => {
 				switch (dqs("#url").value) {
-					case "/getShowsArr":
-						xhr = new XMLHttpRequest();
-						xhr.onload = (e) => {
-							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-							dqs("#shows").innerHTML = "";
-							indMod.formatShows(JSON.parse(xhr.responseText), dqs("#shows"));
-						};
-						xhr.open('GET', '/getShowsArr');
-						xhr.send();
-						break;
 					case "/getShows":
 						xhr = new XMLHttpRequest();
 						xhr.onload = (e) => {
@@ -147,7 +139,38 @@
 						xhr.open('GET', dqs('#url').value);
 						xhr.send();
 						break;
+					case "/getLoginUser":
+						window.username = dqs('#username').value;
+						xhr = new XMLHttpRequest();
+						xhr.onload = (args) => {
+							let obj = JSON.parse(xhr.responseText);
+							dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
+							window.sessionID = obj.sessionID;
+						};
+						xhr.open('GET', `${dqs('#url').value}?username=${dqs('#username').value}&password=${dqs('#password').value}`);
+						xhr.send();
+						break;
+					case "/getUser":
+						// window.username = dqs('#username').value;
+						xhr = new XMLHttpRequest();
+						xhr.onload = (args) => {
+							let obj = JSON.parse(xhr.responseText);
+							dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
+							// window.sessionID = obj.sessionID;
+						};
+						xhr.open('GET', `${dqs('#url').value}?username=${window.username}&sessionID=${window.sessionID}`);
+						xhr.send();
+						break;
+					case "/getShowsArr":
 					default:
+						xhr = new XMLHttpRequest();
+						xhr.onload = (e) => {
+							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+							dqs("#shows").innerHTML = "";
+							indMod.formatShows(JSON.parse(xhr.responseText), dqs("#shows"));
+						};
+						xhr.open('GET', '/getShowsArr');
+						xhr.send();
 						break;
 				}
 			};
@@ -162,6 +185,8 @@
 		<option value="/getShows">/getShows</option>
 		<option value="/postShow">/postShow</option>
 		<option value="/getUUIDTest">/getUUIDTest</option>
+		<option value="/getLoginUser">/getLoginUser</option>
+		<option value="/getUser">/getUser</option>
 	</select>
 	<div id="newShow">
 		<label for="showName">Show Name</label>
@@ -171,6 +196,12 @@
 		<label for="numEpisodes">Number of Episodes</label>
 		<input id="numEpisodes" name="numEpisodes" type="number" min="0" max="20" value="0" />
 		<div id="newShowEpisodes"></div>
+	</div>
+	<div id="login">
+		<label for="username">Username</label>
+		<input id="username" name="username" type="text" required />
+		<label for="password">Password</label>
+		<input id="password" name="password" type="text" required />
 	</div>
 	<button id="launchXHR">Launch XHR</button>
 	<div id="shows"></div>

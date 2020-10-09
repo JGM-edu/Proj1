@@ -16,6 +16,9 @@ const onRequest = (req, res) => {
 			"404"			: responses.get404,
 			"/getShows"		: responses.getShows,
 			"/getShowsArr"	: responses.getShowsArr,
+			"/getLoginUser"	: responses.getLoginUser,
+			"/getUser"		: responses.getUser,
+			"/addToFavList"	: responses.getAddShowToWatchlist,
 			"/getUUIDTest"	: responses.getUUIDTest,
 		},
 		POST: {

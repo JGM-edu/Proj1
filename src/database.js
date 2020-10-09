@@ -25,7 +25,7 @@ const userGUIDs = [
  * @type {Object}
  */
 const users = {
-	"demouser": {
+	"demo_user": {
 		"username": "demo_user",
 		"password": "password",
 		"watched": [
@@ -72,6 +72,7 @@ const shows = {
 				length: "26:00",
 			},
 		],
+		id: "test"
 	},
 	"test2": {
 		name: "TestShow2",
@@ -150,6 +151,7 @@ const shows = {
 				length: "26:00",
 			},
 		],
+		id: "test2"
 	},
 };
 // #endregion
@@ -195,6 +197,19 @@ const isValidUsername = (uName) => isUsernameTaken(uName);
  * @returns {Object}
  */
 const getUser = (id) => users[id];
+
+/**
+ *
+ * @param {String} id The id of the user to get.
+ * @param {String} sessionID 
+ * @returns {Object}
+ */
+const getUserExternal = (id, sessionID) => {
+	if (confirmSession(sessionID, id))
+		return users[id];
+	else
+		throw Error("Failed validation");
+};
 
 /**
  *
@@ -255,9 +270,10 @@ const createUser = (username, password) => {
  * @param {Show} show
  */
 const addShow = (show) => {
-	showGUIDs.push(uuidv4());
-	shows[showGUIDs[showGUIDs.length - 1]] = show;
-	return showGUIDs[showGUIDs.length - 1];
+	let id = uuidv4();
+	showGUIDs.push(id);
+	shows[id] = show;
+	return id;
 };
 
 /**
@@ -268,9 +284,10 @@ const addShow = (show) => {
  * @returns {String} The created show's ID.
  */
 const createShow = (name, thumbURL, episodes) => {
-	showGUIDs.push(uuidv4());
-	shows[showGUIDs[showGUIDs.length - 1]] = new Show(name, thumbURL, episodes);
-	return showGUIDs[showGUIDs.length - 1];
+	let id = uuidv4();
+	showGUIDs.push(id);
+	shows[id] = new Show(name, thumbURL, episodes, id);
+	return id;
 };
 
 // #region USER PROFILE
@@ -338,10 +355,19 @@ const addShowToWatchlist = (sessionID, username, showID) => {
 		users[username].toWatch.push(showID);
 	}
 };
+
+/**
+ * 
+ * @param {String} sessionID 
+ * @param {String} username 
+ */
+const confirmSession = (sessionID, username) => {
+	return (activeSessions[sessionID] == username) && getUser(username)
+};
 // #endregion
 
 module.exports = {
-	getUser,
+	getUser: getUserExternal,
 	getShow,
 	getShows,
 	getShowsArr,
@@ -351,6 +377,7 @@ module.exports = {
 	addShow,
 	createShow,
 
+	logInUser,
 	addShowToWatchlist,
 
 	isUsernameTaken,

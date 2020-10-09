@@ -15,6 +15,21 @@ const MIME = {
 	png:	'image/png',
 };
 
+const statCode = {
+	200: "OK",
+	400: "Bad Request",
+	401: "Unauthorized",
+	403: "Forbidden",
+	404: "Not Found",
+	500: "Internal Server Error",
+	"OK": 200,
+	"Bad Request": 400,
+	"Unauthorized": 401,
+	"Forbidden": 403,
+	"Not Found": 404,
+	"Internal Server Error": 500
+};
+
 const parseURLQuery = (request) => url.parse(request.url, true).query;
 
 const respond = (request, response, content, statusCode = 200, contentType = MIME.json) => {
@@ -84,7 +99,6 @@ const postShow = (req, res) => {
  * @param {*} res
  */
 const getShows = (req, res) => {
-	// let shows = database.getShowsArr();
 	respond(req, res, JSON.stringify(database.getShows()));
 };
 
@@ -94,7 +108,6 @@ const getShows = (req, res) => {
  * @param {*} res
  */
 const getShowsArr = (req, res) => {
-	// let shows = database.getShowsArr();
 	respond(req, res, JSON.stringify(database.getShowsArr()));
 };
 // #endregion
@@ -105,6 +118,68 @@ const getUUIDTest = (req, res) => {
 		message: 'Success',
 		value: database.testUUID(),
 	}));
+};
+
+const getLoginUser = (req, res) => {
+	let pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		// console.log(pQ);
+		let sessionID = database.logInUser(pQ.username, pQ.password);
+		let response = {
+			id: 200,
+			message: "Successfully Logged In!",
+			sessionID: sessionID,
+		};
+		respond(req, res, JSON.stringify(response));
+	} catch (error) {
+		// if (error.message)
+		let response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	}
+	// let sessionID = database.logInUser(pQ.username, pQ.password);
+	// database.logInUser(req, res,)
+};
+
+const getAddShowToWatchlist = (req, res) =>
+{
+	let pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		let sessionID = database.addShowToWatchlist(pQ.sessionID, pQ.username, pQ.showID);
+		let response = {
+			id: 200,
+			message: "Successfully added!",
+			// sessionID: sessionID,
+		};
+		respond(req, res, JSON.stringify(response));
+	} catch (error) {
+		// if (error.message)
+		let response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	}
+};
+
+/**
+ *
+ * @param {*} req
+ * @param {*} res
+ */
+const getUser = (req, res) => {
+	let pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		respond(req, res, JSON.stringify(database.getUser(pQ.username, pQ.sessionID)));
+	} catch (error) {
+		let response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response));
+	}
 };
 
 module.exports = {
@@ -119,6 +194,10 @@ module.exports = {
 	getShows,
 	getShowsArr,
 	postShow,
+
+	getLoginUser,
+	getAddShowToWatchlist,
+	getUser,
 
 	getUUIDTest,
 };
