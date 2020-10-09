@@ -27,7 +27,7 @@ const statCode = {
 	"Unauthorized": 401,
 	"Forbidden": 403,
 	"Not Found": 404,
-	"Internal Server Error": 500
+	"Internal Server Error": 500,
 };
 
 const parseURLQuery = (request) => url.parse(request.url, true).query;
@@ -121,19 +121,20 @@ const getUUIDTest = (req, res) => {
 };
 
 const getLoginUser = (req, res) => {
-	let pQ = querystring.parse(url.parse(req.url).query);
+	const pQ = querystring.parse(url.parse(req.url).query);
 	try {
 		// console.log(pQ);
-		let sessionID = database.logInUser(pQ.username, pQ.password);
-		let response = {
+		const sessionID = database.logInUser(pQ.username, pQ.password);
+		const response = {
 			id: 200,
 			message: "Successfully Logged In!",
-			sessionID: sessionID,
+			sessionID,
 		};
 		respond(req, res, JSON.stringify(response));
-	} catch (error) {
+	}
+	catch (error) {
 		// if (error.message)
-		let response = {
+		const response = {
 			id: statCode["Internal Server Error"],
 			message: `Internal Server Error; ${error.message}`,
 		};
@@ -143,20 +144,20 @@ const getLoginUser = (req, res) => {
 	// database.logInUser(req, res,)
 };
 
-const getAddShowToWatchlist = (req, res) =>
-{
-	let pQ = querystring.parse(url.parse(req.url).query);
+const getAddShowToWatchlist = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
 	try {
-		let sessionID = database.addShowToWatchlist(pQ.sessionID, pQ.username, pQ.showID);
-		let response = {
+		const sessionID = database.addShowToWatchlist(pQ.sessionID, pQ.username, pQ.showID);
+		const response = {
 			id: 200,
 			message: "Successfully added!",
 			// sessionID: sessionID,
 		};
 		respond(req, res, JSON.stringify(response));
-	} catch (error) {
+	}
+	catch (error) {
 		// if (error.message)
-		let response = {
+		const response = {
 			id: statCode["Internal Server Error"],
 			message: `Internal Server Error; ${error.message}`,
 		};
@@ -170,11 +171,12 @@ const getAddShowToWatchlist = (req, res) =>
  * @param {*} res
  */
 const getUser = (req, res) => {
-	let pQ = querystring.parse(url.parse(req.url).query);
+	const pQ = querystring.parse(url.parse(req.url).query);
 	try {
 		respond(req, res, JSON.stringify(database.getUser(pQ.username, pQ.sessionID)));
-	} catch (error) {
-		let response = {
+	}
+	catch (error) {
+		const response = {
 			id: statCode["Internal Server Error"],
 			message: `Internal Server Error; ${error.message}`,
 		};

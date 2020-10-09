@@ -72,7 +72,7 @@ const shows = {
 				length: "26:00",
 			},
 		],
-		id: "test"
+		id: "test",
 	},
 	"test2": {
 		name: "TestShow2",
@@ -151,7 +151,7 @@ const shows = {
 				length: "26:00",
 			},
 		],
-		id: "test2"
+		id: "test2",
 	},
 };
 // #endregion
@@ -201,14 +201,12 @@ const getUser = (id) => users[id];
 /**
  *
  * @param {String} id The id of the user to get.
- * @param {String} sessionID 
+ * @param {String} sessionID
  * @returns {Object}
  */
 const getUserExternal = (id, sessionID) => {
-	if (confirmSession(sessionID, id))
-		return users[id];
-	else
-		throw Error("Failed validation");
+	if (confirmSession(sessionID, id)) return users[id];
+	throw Error("Failed validation");
 };
 
 /**
@@ -270,7 +268,7 @@ const createUser = (username, password) => {
  * @param {Show} show
  */
 const addShow = (show) => {
-	let id = uuidv4();
+	const id = uuidv4();
 	showGUIDs.push(id);
 	shows[id] = show;
 	return id;
@@ -284,7 +282,7 @@ const addShow = (show) => {
  * @returns {String} The created show's ID.
  */
 const createShow = (name, thumbURL, episodes) => {
-	let id = uuidv4();
+	const id = uuidv4();
 	showGUIDs.push(id);
 	shows[id] = new Show(name, thumbURL, episodes, id);
 	return id;
@@ -357,13 +355,11 @@ const addShowToWatchlist = (sessionID, username, showID) => {
 };
 
 /**
- * 
- * @param {String} sessionID 
- * @param {String} username 
+ *
+ * @param {String} sessionID
+ * @param {String} user
  */
-const confirmSession = (sessionID, username) => {
-	return (activeSessions[sessionID] == username) && getUser(username)
-};
+const confirmSession = (sessionID, user) => (activeSessions[sessionID] == user) && getUser(user);
 // #endregion
 
 module.exports = {
