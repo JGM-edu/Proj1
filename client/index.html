@@ -6,180 +6,24 @@
 	<script src="./index.js" type="module"></script>
 	<script type="module">
 		import * as indMod from './index.js';
-		const dqs = document.querySelector.bind(document);
-		window.onload = () => {
-			window.sessionID;
-			window.username;
-			let xhr;
-			// SETUP FUNCTIONALITY
-			document.querySelectorAll("[required]").forEach((e) =>
-			{
-				e.addEventListener('blur', indMod.requireInput_OnBlur);
-				// e.addEventListener('blur', (evArgs) =>
-				// {
-				// 	// document.querySelector('input').required
-				// 	// classList.contains('required')
-				// 	if (evArgs.currentTarget?.required && evArgs.currentTarget.value) {
-				// 		evArgs.currentTarget.classList.add(['required']);
-				// 	}
-				// });
-			});
-
-			const episodeDOMTemplate = document.createElement('div');
-
-			let currLabel = document.createElement('label');
-			currLabel.htmlFor = 'epiName';
-			currLabel.innerHTML = "Episode Name";
-			episodeDOMTemplate.appendChild(currLabel);
-
-			let curr = document.createElement('input');
-			// curr.classList.add(['epiName', 'requiredField']);
-			curr.className = 'epiName requiredField';
-			// curr.addEventListener('blur', indMod.requireInput_OnBlur);
-			curr.required = true;
-			curr.name = 'epiName';
-			curr.type = 'text';
-			currLabel.appendChild(curr);
-
-			currLabel = document.createElement('label');
-			currLabel.htmlFor = 'epiSeason';
-			currLabel.innerHTML = "Episode Season";
-			episodeDOMTemplate.appendChild(currLabel);
-
-			curr = document.createElement('input');
-			curr.className = 'epiSeason';
-			curr.name = 'epiSeason';
-			curr.type = 'number';
-			curr.min = 1;
-			curr.value = 1;
-			currLabel.appendChild(curr);
-
-			currLabel = document.createElement('label');
-			currLabel.htmlFor = 'epiNumber';
-			currLabel.innerHTML = "Episode Number";
-			episodeDOMTemplate.appendChild(currLabel);
-
-			curr = document.createElement('input');
-			curr.className = 'epiNumber';
-			curr.name = 'epiNumber';
-			curr.type = 'number';
-			curr.min = 1;
-			curr.value = 1;
-			currLabel.appendChild(curr);
-
-			currLabel = document.createElement('label');
-			currLabel.htmlFor = 'epiLength';
-			currLabel.innerHTML = "Episode Length";
-			episodeDOMTemplate.appendChild(currLabel);
-
-			curr = document.createElement('input');
-			curr.className = 'epiLength';
-			curr.name = 'epiLength';
-			curr.type = 'time';
-			curr.step = '1';
-			curr.value = "00:00:00";
-			currLabel.appendChild(curr);
-
-			dqs(`#numEpisodes`).onchange = (e) => {
-				if (dqs(`#newShowEpisodes`).children.length != dqs(`#numEpisodes`).value) {
-					dqs(`#newShowEpisodes`).innerHTML = "";
-					for (let i = 0; i < dqs(`#numEpisodes`).value; i++)
-						dqs(`#newShowEpisodes`).appendChild(episodeDOMTemplate.cloneNode(true));
-				}
-				document.querySelectorAll("[required]").forEach((e) => e.addEventListener('blur', indMod.requireInput_OnBlur));
-			};
-
-			dqs(`#launchXHR`).onclick = (e) => {
-				switch (dqs("#url").value) {
-					case "/getShows":
-						xhr = new XMLHttpRequest();
-						xhr.onload = (e) => {
-							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-							let shows = JSON.parse(xhr.responseText);
-							// shows.forEach(e => {
-							// 	const currElem = document.createElement('span');
-							// 	let elemChild = document.createElement('p');
-							// 	elemChild.innerHTML = `Name: ${e.name}`;
-							// 	currElem.appendChild(elemChild);
-							// 	elemChild = document.createElement('p');
-							// 	elemChild.innerHTML = `Episode 1: ${e.episodes[0].name}`;
-							// 	currElem.appendChild(elemChild);
-							// 	dqs('#shows').innerHTML = "";
-							// 	dqs('#shows').appendChild(currElem);
-							// });
-						};
-						xhr.open('GET', '/getShows');
-						xhr.send();
-						break;
-					case "/postShow":
-						xhr = new XMLHttpRequest();
-						xhr.onload = () => dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-						xhr.open("POST", dqs('#url').value);
-						xhr.send(JSON.stringify({
-							name: 		dqs('#showName').value,
-							thumbURL:	dqs('#thumbURL').value,
-							episodes:	(() => {
-								let retVal = [];
-								for (let i = 0; i < dqs('#newShowEpisodes').children.length; i++) {
-									const elem = dqs('#newShowEpisodes').children[i];
-									retVal.push({
-										name:	elem.children[0].children[0].value,
-										season:	elem.children[1].children[0].value,
-										number:	elem.children[2].children[0].value,
-										length:	elem.children[3].children[0].value,
-									});
-								}
-								return retVal;
-							})()
-						}));
-						break;
-					case "/getUUIDTest":
-						xhr = new XMLHttpRequest();
-						xhr.onload = (args) => dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-						xhr.open('GET', dqs('#url').value);
-						xhr.send();
-						break;
-					case "/getLoginUser":
-						window.username = dqs('#username').value;
-						xhr = new XMLHttpRequest();
-						xhr.onload = (args) => {
-							let obj = JSON.parse(xhr.responseText);
-							dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
-							window.sessionID = obj.sessionID;
-						};
-						xhr.open('GET', `${dqs('#url').value}?username=${dqs('#username').value}&password=${dqs('#password').value}`);
-						xhr.send();
-						break;
-					case "/getUser":
-						// window.username = dqs('#username').value;
-						xhr = new XMLHttpRequest();
-						xhr.onload = (args) => {
-							let obj = JSON.parse(xhr.responseText);
-							dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
-							// window.sessionID = obj.sessionID;
-						};
-						xhr.open('GET', `${dqs('#url').value}?username=${window.username}&sessionID=${window.sessionID}`);
-						xhr.send();
-						break;
-					case "/getShowsArr":
-					default:
-						xhr = new XMLHttpRequest();
-						xhr.onload = (e) => {
-							dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-							dqs("#shows").innerHTML = "";
-							indMod.formatShows(JSON.parse(xhr.responseText), dqs("#shows"));
-						};
-						xhr.open('GET', '/getShowsArr');
-						xhr.send();
-						break;
-				}
-			};
-
-			dqs(`#launchXHR`).onclick();
-		};
+		window.onload = indMod.init;
 	</script>
 </head>
 <body>
+	<div id="loginPane">
+		<span id="loginPaneTop">
+			<button id="bttn_Switch">Want to Sign Up?</button>
+			<div id="login">
+				<label for="username">Username</label>
+				<input id="username" name="username" type="text" required />
+				<label for="password">Password</label>
+				<input id="password" name="password" type="text" required />
+			</div>
+			<button id="bttn_Login" data-url="/getLoginUser">Log In</button>
+		</span>
+		<div id="login_hover">Login/Signup</div>
+	</div>
+	<h1>TV Tracker</h1>
 	<select id="url">
 		<option value="/getShowsArr" selected>/getShowsArr</option>
 		<option value="/getShows">/getShows</option>
@@ -197,14 +41,7 @@
 		<input id="numEpisodes" name="numEpisodes" type="number" min="0" max="20" value="0" />
 		<div id="newShowEpisodes"></div>
 	</div>
-	<div id="login">
-		<label for="username">Username</label>
-		<input id="username" name="username" type="text" required />
-		<label for="password">Password</label>
-		<input id="password" name="password" type="text" required />
-	</div>
 	<button id="launchXHR">Launch XHR</button>
 	<div id="shows"></div>
 	<div id="xhrResults"></div>
-	<p>FINISH THIS</p>
 </body>

@@ -1,5 +1,5 @@
-const Episode = require('./Episode.js');
 /** @module Show */
+const Episode = require('./Episode.js');
 /** @class */
 class Show {
 	/**
@@ -7,6 +7,7 @@ class Show {
 	 * @param {String} name
 	 * @param {String} thumbURL
 	 * @param {Episode[]} episodes
+	 * @param {String} id
 	 */
 	constructor(name, thumbURL, episodes, id) {
 		/**

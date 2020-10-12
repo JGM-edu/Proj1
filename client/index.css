@@ -1,9 +1,12 @@
-* {
+/* * {
 	color: white;
-	/* background-color: black; */
+	background-color: rgba(32, 32, 32, 1);
+} */
+body, input, button, div, select {
+	color: white;
 	background-color: rgba(32, 32, 32, 1);
 }
-
+/* &checkmark; &cross; &plus; */
 /* #region Remove Horizontal Scroll */
 html {
 	margin: 0;
@@ -25,6 +28,7 @@ body > * {
 
 /* #region Simple Things */
 .requiredField {
+	box-sizing: border-box;
 	border: 3px solid red;
 }
 	.requiredField:active {
@@ -35,6 +39,72 @@ body > * {
 #xhrResults {
 	white-space: pre-wrap;
 }
+
+/* #region Login Pane */
+/* #region Layout */
+/* #region Grid */
+#login_hover {
+	grid-area: login_hover;
+	justify-self: center;
+}
+#loginPaneTop {
+	grid-area: loginPaneTop;
+	align-self: center;
+}
+#loginPane {
+	display: grid;
+	grid-template-columns: auto auto auto auto;
+	grid-template-rows: auto auto;
+	grid-template-areas:
+		"loginPaneTop loginPaneTop loginPaneTop loginPaneTop"
+		". . . login_hover";
+}
+/* #endregion */
+/* #region Flex */
+#loginPaneTop {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+#bttn_Login {
+	align-self: center;
+}
+#login {
+	align-self: center;
+}
+/* #endregion */
+#loginPaneTop {
+	padding: .5em 0;
+}
+#login_hover {
+	padding: .5em .5em;
+}
+
+#loginPane/*Top, #login_hover*/ {
+	position: absolute;
+	top: -2.25em;
+	left: 0;
+	box-sizing: border-box;
+	width: 100%;
+
+	transition: ease-in-out 1s;
+}
+#loginPane:hover/*Top:hover, #login_hover:hover*/ {
+	top: 0;
+}
+/* #endregion */
+/* #region Style */
+#loginPane {
+	background-color: rgba(64, 64, 64, 0);
+}
+#login_hover, #loginPaneTop, #login {
+	background-color: rgba(64, 64, 64, 1);
+}
+#login_hover {
+	border-radius: 0 0 10px 10px;
+}
+/* #endregion */
+/* #endregion */
 
 /* #region Show Listings */
 /* #region GRID */
@@ -60,9 +130,85 @@ body > * {
 		". epiListing";
 }
 /* #endregion */
-
+/* #region Layout */
 .showListing .showName {
 	/* padding-left: 1.5em; */
+	justify-self: center;
+}
+.showListing {
+	box-sizing: border-box;
+	margin: .5em auto;
+	padding: 1.5em;
+	padding-left: 0;
+
+	/* Fixes button leaving bounds */
+	position: relative;
+}
+.showListing .showName {
+	display: inline;
+	margin: 0;
+	/* padding: .5em; */
+}
+
+.showListing .showThumbnail {
+	width: 75%;
+	padding-top: 1em;
+}
+
+.showListing .showEpisodeListing .episode {
+	display: inline-flex;
+	width: 100%;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+}
+.showListing .showEpisodeListing .episode .episodeNumber,
+.showListing .showEpisodeListing .episode .episodeName,
+.showListing .showEpisodeListing .episode .episodeLength {
+	display: inline;
+	
+	margin: 3px 2px;
+}
+
+.showListing .bttn_ChangeWatchlist {
+	position: absolute;
+	top: 1em;
+	right: 1em;
+}
+/* #endregion */
+/* #region Style */
+.showListing {
+	border-radius: 10px;
+	background-color: rgba(64, 64, 64, 1);
+}
+.showListing * {
+	background-color: rgba(64, 64, 64, 1);
+}
+.showListing .showEpisodeListing {
+	border-radius: 10px;
+	padding: 5px 5px 5px;
+}
+.showListing .showEpisodeListing, .showListing .showEpisodeListing * {
+	border-radius: 10px;
+	background-color: rgba(48, 48, 48, 1);
+}
+
+.showListing .showName {
+	font-size: x-large;
+}
+
+.showListing .bttn_ChangeWatchlist {
+	width: min-content;
+	border-radius: 25%;
+	border-width: 5px;
+
+	transition: ease-in-out 1s;
+	opacity: 0;
+}
+	.showListing:hover .bttn_ChangeWatchlist {
+		opacity: .75;
+	}
+/* #endregion */
+/* .showListing .showName {
 	justify-self: center;
 }
 .showListing {
@@ -89,7 +235,6 @@ body > * {
 .showListing .showName {
 	display: inline;
 	margin: 0;
-	/* padding: .5em; */
 
 	font-size: x-large;
 }
@@ -111,5 +256,5 @@ body > * {
 	display: inline;
 	
 	margin: 3px 2px;
-}
+} */
 /* #endregion */

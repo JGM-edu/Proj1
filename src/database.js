@@ -1,13 +1,10 @@
-/**
- * @module database
- */
+/** @module database */
 
 // #region Imports
-const { v4: uuidv4 } = require('uuid');
-// const { Show: Show, Episode: Episode } = require('./Show.js');
-const Show = require('./Show.js');
-const Episode = require('./Episode.js');
-const User = require('./User.js');
+const { v4: uuidv4 }	= require('uuid');
+const Show				= require('./classes/Show.js');
+const Episode			= require('./classes/Episode.js');
+const User				= require('./classes/User.js');
 // #endregion
 
 // #region Storage
@@ -242,7 +239,8 @@ const getShows = () => shows;
 const getShowsArr = () => showGUIDs.map((e) => shows[e]);
 // #endregion
 // #endregion
-
+// #region Adds
+// #region Add User
 /**
  *
  * @param {User} user
@@ -262,7 +260,8 @@ const createUser = (username, password) => {
 		return logInUser(username, password);
 	}
 };
-
+// #endregion
+// #region Add Show
 /**
  *
  * @param {Show} show
@@ -287,7 +286,8 @@ const createShow = (name, thumbURL, episodes) => {
 	shows[id] = new Show(name, thumbURL, episodes, id);
 	return id;
 };
-
+// #endregion
+// #endregion
 // #region USER PROFILE
 /**
  *
@@ -349,10 +349,64 @@ const addShowToWatchlist = (sessionID, username, showID) => {
 	else if (!getUser(username)) {
 		throw new Error("Invalid Username");
 	}
-	else {
+	else if (!users[username].toWatch.includes(showID)) {
 		users[username].toWatch.push(showID);
 	}
+	else {
+		throw new Error("Show already in watchlist");
+	}
 };
+
+/**
+ *
+ * @param {String} sessionID The id of the client's session.
+ * @param {String} username The username of the client
+ * @param {String} showID The id of the show to remove
+ * @throws {Error}
+ */
+const removeShowFromWatchlist = (sessionID, username, showID) => {
+	if (!(activeSessions[sessionID] == username)) {
+		throw new Error("Session ID is not registered to given username.");
+	}
+	else if (!getShow(showID)) {
+		throw new Error("Invalid ShowID");
+	}
+	else if (!getUser(username)) {
+		throw new Error("Invalid Username");
+	}
+	else if (users[username].toWatch.includes(showID)) {
+		users[username].toWatch = users[username].toWatch.filter((elem) => elem != showID);
+	}
+	else {
+		throw new Error("Show not found in watchlist");
+	}
+};
+
+/**
+ *
+ * @param {String} sessID The id of the client's session.
+ * @param {String} uName The username of the client
+ * @param {String} showID The id of the show to check
+ */
+const isShowInWatchlist = (
+	sessID,
+	uName,
+	showID,
+) => activeSessions[sessID] == uName && users[uName].toWatch.includes(showID);
+// #region RegionName
+// if (!(activeSessions[sessionID] == username)) {
+// 	throw new Error("Session ID is not registered to given username.");
+// }
+// else if (!getShow(showID)) {
+// 	throw new Error("Invalid ShowID");
+// }
+// else if (!getUser(username)) {
+// 	throw new Error("Invalid Username");
+// }
+// else {
+// 	return users[username].toWatch.includes(showID);
+// }
+// #endregion
 
 /**
  *
@@ -375,6 +429,8 @@ module.exports = {
 
 	logInUser,
 	addShowToWatchlist,
+	removeShowFromWatchlist,
+	isShowInWatchlist,
 
 	isUsernameTaken,
 	isValidUsername,

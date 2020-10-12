@@ -1,3 +1,5 @@
+/** @module Episode */
+/** @class */
 class Episode {
 	/**
 	 *
@@ -21,7 +23,8 @@ class Episode {
 	}
 }
 
-module.exports = {
-	// Show,
-	Episode,
-};
+// module.exports = {
+// 	// Show,
+// 	Episode,
+// };
+module.exports = Episode;
