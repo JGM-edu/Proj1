@@ -62,9 +62,10 @@ const respond = (
 	contentType = MIME.json,
 ) => {
 	response.writeHead(statusCode, { 'Content-Type': contentType });
+	let writeableContent = content
 	if (!(content instanceof Buffer) && typeof(content) != "string")
-		content = JSON.stringify(content);
-	response.write(content);
+		writeableContent = JSON.stringify(content);
+	response.write(writeableContent);
 	response.end();
 };
 // #endregion
