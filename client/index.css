@@ -258,3 +258,73 @@ body > * {
 	margin: 3px 2px;
 } */
 /* #endregion */
+
+/* #region Watchlist */
+.watchlist {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+
+	/* column-gap: 1em; */
+	/* Stops pushing onto new gridline */
+	column-gap: 1px;
+}
+.wl_Show {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-between;
+}
+.wl_Show {
+	box-sizing: border-box;
+	margin: .5em .5em;
+	padding: 0 1.5em;
+	/* padding-left: 0; */
+	
+	/* max-width: 25%; */
+	max-width: 100%;
+}
+.wl_Show .wl_ShowName, .wl_Show .wl_ShowNum {
+	display: inline;
+	margin: 1em 0;
+	/* padding: .5em; */
+}
+
+.wl_ShowThumb {
+	/* max-width: 25%; */
+	/* max-width: auto;
+	max-height: auto; */
+	display: inline;
+	object-fit: contain;
+	max-width: 100%;
+}
+
+.watchlist {
+	background-color: rgba(64, 64, 64, 1);
+}
+
+.wl_Show {
+	border-radius: 10px;
+	background-color: rgba(48, 48, 48, 1);
+}
+.wl_Show * {
+	background-color: rgba(48, 48, 48, 1);
+}
+
+.wl_Show .wl_ShowName, .wl_Show .wl_ShowNum {
+	font-size: larger;
+	font-weight: bolder;
+}
+/* #endregion */
+
+#messageBox {
+	display: none;
+	opacity: 0;
+	z-index: -1;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	box-sizing: content-box;
+	margin: 2em;
+}

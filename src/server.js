@@ -17,6 +17,7 @@ const onRequest = (req, res) => {
 			"/Show.js"			: responses.getShowJS,
 			'/default.png'		: responses.getDefaultPNG,
 			"/404"				: responses.get404,
+			"/getShow"			: responses.getShow,
 			"/getShows"			: responses.getShows,
 			"/getShowsArr"		: responses.getShowsArr,
 			"/getLoginUser"		: responses.getLoginUser,

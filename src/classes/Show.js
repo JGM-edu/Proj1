@@ -31,7 +31,8 @@ class Show {
 		 */
 		this.id = id;
 	}
-
+	
+	// #region Statics
 	/**
 	 *
 	 * @param {String} jsonString
@@ -50,6 +51,7 @@ class Show {
 		const epi = anonObject.episodes.map((e) => Episode.construct(e));
 		return new Show(anonObject.name, anonObject.thumbURL, epi);
 	}
+	// #endregion
 }
 
 // class Episode

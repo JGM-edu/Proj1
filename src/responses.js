@@ -36,6 +36,9 @@ const statCode = {
 	"Not Found"				: 404,
 	"Internal Server Error"	: 500,
 	"Service Unavailable"	: 503,
+	isError					: (code) => code >= 400,
+	isSuccess				: (code) => code >= 200 && code < 300,
+	isInfo					: (code) => code >= 100 && code < 200,
 };
 
 // #region Helper Functions
@@ -157,6 +160,16 @@ const postShow = (req, res) => {
  */
 const getShows = (req, res) => {
 	respond(req, res, JSON.stringify(database.getShows()));
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getShow = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	respond(req, res, JSON.stringify(database.getShow(pQ.showID)));
 };
 
 /**
@@ -299,7 +312,7 @@ const getUser = (req, res) => {
 			id: statCode["Internal Server Error"],
 			message: `Internal Server Error; ${error.message}`,
 		};
-		respond(req, res, JSON.stringify(response));
+		respond(req, res, JSON.stringify(response), 500);
 	}
 };
 
@@ -318,7 +331,7 @@ const getSignUpUser = (req, res) => {
 			id: statCode["Internal Server Error"],
 			message: `Internal Server Error; ${error.message}`,
 		};
-		respond(req, res, JSON.stringify(response));
+		respond(req, res, JSON.stringify(response), 500);
 	}
 };
 // #endregion
@@ -332,6 +345,7 @@ module.exports = {
 
 	get404,
 
+	getShow,
 	getShows,
 	getShowsArr,
 	postShow,

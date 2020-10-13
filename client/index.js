@@ -4,6 +4,30 @@ const dqs = document.querySelector.bind(document);
 const dqsa = document.querySelectorAll.bind(document);
 // #endregion
 
+const statCode = {
+	200						: "OK",
+	201						: "Created",
+	204						: "No Content",
+	400						: "Bad Request",
+	401						: "Unauthorized",
+	403						: "Forbidden",
+	404						: "Not Found",
+	500						: "Internal Server Error",
+	503						: "Service Unavailable",
+	"OK"					: 200,
+	"Created"				: 201,
+	"No Content"			: 204,
+	"Bad Request"			: 400,
+	"Unauthorized"			: 401,
+	"Forbidden"				: 403,
+	"Not Found"				: 404,
+	"Internal Server Error"	: 500,
+	"Service Unavailable"	: 503,
+	isError					: (code) => code >= 400,
+	isSuccess				: (code) => code >= 200 && code < 300,
+	isInfo					: (code) => code >= 100 && code < 200,
+};
+
 /**
  * 
  * @param {HTMLButtonElement} b 
@@ -47,8 +71,7 @@ const isShowInWatchlist = (showID, callback) => {
  * @param {HTMLElement} [container = undefined] 
  * @returns {Element} 
  */
-const formatShows = (showArr, container = undefined) =>
-{
+const formatShows = (showArr, container = undefined) => {
 	const containerType = 'div', showElemType = 'span', showTitleType = 'h4', showEpiListType = 'div', episodeType = 'span';
 	const retVal		= (container) ? container : document.createElement(containerType);
 	let currShow		= document.createElement(showElemType), 
@@ -64,15 +87,6 @@ const formatShows = (showArr, container = undefined) =>
 		currShow.dataset.name = e.name;
 		currShow.dataset.thumbURL = e.thumbURL;
 		currShow.dataset.showID = e.id;
-		// currShow.onclick = (args) =>
-		// {
-		// 	let xhr = new XMLHttpRequest();
-		// 	xhr.onload = (e) => {
-		// 		dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-		// 	};
-		// 	xhr.open('GET', `/addToFavList?sessionID=${window.sessionID}&username=${window.username}&showID=${e.id}`);
-		// 	xhr.send();
-		// };
 		retVal.appendChild(currShow);
 
 		// #region Add To Watchlist Button
@@ -80,25 +94,6 @@ const formatShows = (showArr, container = undefined) =>
 		addToListBttn.innerHTML = '+';
 		addToListBttn.classList.add("bttn_ChangeWatchlist");
 		addToListBttn.dataset.showID = e.id;
-		// addToListBttn.onclick = (evArgs) => {
-		// 	let xhr = new XMLHttpRequest();
-		// 	xhr.onload = () => {
-		// 		let obj = JSON.parse(xhr.responseText);
-		// 		dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
-		// 		if (xhr.status == 204) {
-		// 			evArgs.target.innerHTML = "&check;";
-		// 			evArgs.target.style.color = "green";
-		// 			let tID;
-		// 			tID = setTimeout(() => {
-		// 				evArgs.target.innerHTML = "-";
-		// 				evArgs.target.style.color = "";
-		// 				clearTimeout(tID);
-		// 			}, 1000);
-		// 		}
-		// 	};
-		// 	xhr.open('GET', `/addToFavList?sessionID=${window.sessionID}&username=${window.username}&showID=${e.id}`);
-		// 	xhr.send();
-		// };
 		addToListBttn.onclick = bttn_ChangeWatchlist_OnClick;
 		currShow.appendChild(addToListBttn);
 		// #endregion
@@ -147,7 +142,205 @@ const formatShows = (showArr, container = undefined) =>
 	return retVal;
 };
 
+const formatShow = (show, container = undefined) => {
+	const containerType = 'span', showTitleType = 'h4', showEpiListType = 'div', episodeType = 'span';
+	const retVal		= (container) ? container : document.createElement(containerType);
+	let currShow		= retVal, 
+		currShowTitle	= document.createElement(showTitleType),
+		currShowThumb	= document.createElement('img'),
+		currShowEpiList	= document.createElement(showEpiListType),
+		currEpisode		= document.createElement(episodeType),
+		addToListBttn	= document.createElement('button');
+	const e = show;
+	// currShow = document.createElement(containerType);
+	currShow.className = "showListing";
+	currShow.dataset.name = e.name;
+	currShow.dataset.thumbURL = e.thumbURL;
+	currShow.dataset.showID = e.id;
+
+	// #region Add To Watchlist Button
+	addToListBttn = document.createElement('button');
+	addToListBttn.innerHTML = '+';
+	addToListBttn.classList.add("bttn_ChangeWatchlist");
+	addToListBttn.dataset.showID = e.id;
+	addToListBttn.onclick = bttn_ChangeWatchlist_OnClick;
+	currShow.appendChild(addToListBttn);
+	// #endregion
+
+	currShowTitle = document.createElement(showTitleType);
+	currShowTitle.className = "showName";
+	currShowTitle.innerHTML = e.name;
+	currShow.appendChild(currShowTitle);
+
+	currShowThumb = document.createElement('img');
+	currShowThumb.className = "showThumbnail";
+	currShowThumb.src = (e.thumbURL) ? e.thumbURL : './default.png';
+	currShowThumb.alt = `Show Thumbnail (${e.thumbURL})`;
+	currShow.appendChild(currShowThumb);
+
+	currShowEpiList = document.createElement(showEpiListType);
+	currShowEpiList.className = "showEpisodeListing";
+	currShow.appendChild(currShowEpiList);
+		
+	let currEpiNum		= document.createElement('p'),
+		currEpiName		= document.createElement('p'),
+		currEpiLength	= document.createElement('p');
+	for (let j = 0; j < e.episodes.length; j++) {
+		const elem = e.episodes[j];
+		
+		currEpisode = document.createElement(episodeType);
+		currEpisode.className = "episode";
+		currShowEpiList.appendChild(currEpisode);
+		
+		currEpiNum = document.createElement('p');
+		currEpiNum.className = "episodeNumber";
+		currEpiNum.innerHTML = `S${elem.season}E${elem.number}`;
+		currEpisode.appendChild(currEpiNum);
+		
+		currEpiName = document.createElement('p');
+		currEpiName.className = "episodeName";
+		currEpiName.innerHTML = elem.name;
+		currEpisode.appendChild(currEpiName);
+		
+		currEpiLength = document.createElement('p');
+		currEpiLength.className = "episodeLength";
+		currEpiLength.innerHTML = elem.length;
+		currEpisode.appendChild(currEpiLength);
+	}
+	return retVal;
+};
+
+/**
+ * 
+ * @param {User} user 
+ * @param {HTMLElement} [container = undefined] 
+ */
+const formatUser = (user, container = undefined) => {
+	const containerType = 'div', userNameType = 'h4', watchlistType = 'div', showType = 'span', epiWatchedListType = 'div', episodeType = 'span';
+	if (container)
+		container.innerHTML = '';
+	const retVal = (container) ? container : document.createElement(containerType);
+	// let// currShow		= document.createElement(showElemType), 
+		// currShowTitle	= document.createElement(userNameType),
+		// currShowThumb	= document.createElement('img'),
+		// currShowEpiList	= document.createElement(showEpiListType),
+		// currEpisode		= document.createElement(episodeType),
+		// addToListBttn	= document.createElement('button');
+	// #region Username
+	let userNameElem = document.createElement(userNameType);
+	userNameElem.innerHTML = user.username;
+	retVal.appendChild(userNameElem);
+	// #endregion
+
+	// #region Watchlist
+	let watchlistCont = document.createElement(watchlistType);
+	watchlistCont.className = 'watchlist';
+	retVal.appendChild(watchlistCont);
+	
+	let currShow = document.createElement(showType),
+		currShowName = document.createElement('p'),
+		currShowThumb = document.createElement('img'),
+		currShowNum = document.createElement('p');
+	for (let i = 0; i < user.toWatch.length; i++) {
+		const showXHR = new XMLHttpRequest();
+		showXHR.onload = () => {
+			const show = JSON.parse(showXHR.responseText);
+			currShow = document.createElement(showType);
+			currShow.className = 'wl_Show';
+			switch (user.toWatch.length) {
+				case 1:
+					currShow.style.gridColumnStart = "1";
+					currShow.style.gridColumnEnd = "-1";
+					break;
+				case 2:
+					if (i == 0) {
+						currShow.style.gridColumnStart = "1";
+						currShow.style.gridColumnEnd = "3";
+					}
+					else if (i == 1) {
+						currShow.style.gridColumnStart = "-3";
+						currShow.style.gridColumnEnd = "-1";
+					}
+					break;
+				case 3:
+					watchlistCont.style.gridTemplateColumns = "1fr 1fr 1fr";
+					break;
+				default:
+					break;
+			}
+			currShow.onclick = (e) => {
+				e.stopPropagation();
+				formatShow(show, dqs('#messageBox'));
+				let mb = document.querySelector('#messageBox');
+				mb.style.zIndex = 10;
+				let timestamp, currOpacity = 0, opacityStep = .05, funct;
+				funct = () => {
+					currOpacity += opacityStep;
+					mb.style.opacity = (currOpacity >= 1) ? 1 : currOpacity;
+					clearTimeout(timestamp);
+					if (currOpacity < 1)
+						timestamp = setTimeout(funct, 50);
+				};
+				timestamp = setTimeout(funct, 50);
+				document.body.addEventListener('click', body_OnClick_fadeOutMsgBox);
+			};
+			watchlistCont.appendChild(currShow);
+			
+			currShowName = document.createElement('p');
+			currShowName.className = 'wl_ShowName';
+			currShowName.innerHTML = show.name;
+			currShow.appendChild(currShowName);
+	
+			currShowThumb = document.createElement('img');
+			currShowThumb.className = 'wl_ShowThumb';
+			currShowThumb.src = (show.thumbURL) ? show.thumbURL : './default.png';
+			currShowThumb.alt = `Show Thumbnail: ${show.thumbURL}`;
+			currShow.appendChild(currShowThumb);
+			
+			currShowNum = document.createElement('p');
+			currShowNum.className = 'wl_ShowNum';
+			currShowNum.innerHTML = ''+(i+1);
+			currShow.appendChild(currShowNum);
+		}
+		showXHR.open('GET', `/getShow?showID=${user.toWatch[i]}`);
+		showXHR.send();
+	}
+	// #endregion
+
+	// #region Watched
+	
+	// #endregion
+	return retVal;
+};
+
 // #region Event Listeners
+const msgBox_OnClick_StopProp = (e) => {
+	e.stopPropagation();
+};
+/**
+ * 
+ * @param {MouseEvent} e 
+ */
+const body_OnClick_fadeOutMsgBox = (e) => {
+	e.stopPropagation();
+	document.body.removeEventListener('click', body_OnClick_fadeOutMsgBox);
+	let mb = document.querySelector('#messageBox'), timestamp = undefined, currOpacity = 1, opacityStep = .05;
+	let funct2;
+	funct2 = () => {
+		currOpacity -= opacityStep;
+		mb.style.opacity = (currOpacity < 0) ? 0 : currOpacity;
+		clearTimeout(timestamp);
+		if (currOpacity > 0)
+			timestamp = setTimeout(funct2, 50);
+		else {
+			mb.style.zIndex = -1;
+			mb.innerHTML = "";
+			mb.className = "";
+		}
+	};
+	timestamp = setTimeout(funct2, 50);
+};
+
 /**
  * 
  * @param {MouseEvent} evArgs 
@@ -353,18 +546,6 @@ const init = () => {
 				xhr = new XMLHttpRequest();
 				xhr.onload = (e) => {
 					dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
-					let shows = JSON.parse(xhr.responseText);
-					// shows.forEach(e => {
-					// 	const currElem = document.createElement('span');
-					// 	let elemChild = document.createElement('p');
-					// 	elemChild.innerHTML = `Name: ${e.name}`;
-					// 	currElem.appendChild(elemChild);
-					// 	elemChild = document.createElement('p');
-					// 	elemChild.innerHTML = `Episode 1: ${e.episodes[0].name}`;
-					// 	currElem.appendChild(elemChild);
-					// 	dqs('#shows').innerHTML = "";
-					// 	dqs('#shows').appendChild(currElem);
-					// });
 				};
 				xhr.open('GET', '/getShows');
 				xhr.send();
@@ -415,6 +596,8 @@ const init = () => {
 					let obj = JSON.parse(xhr.responseText);
 					dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
 					// window.sessionID = obj.sessionID;
+					if (statCode.isSuccess(xhr.status))
+						formatUser(obj, dqs('#userInfo'));
 				};
 				xhr.open('GET', `${dqs('#url').value}?username=${window.username}&sessionID=${window.sessionID}`);
 				xhr.send();

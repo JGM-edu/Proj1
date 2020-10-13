@@ -37,6 +37,21 @@ const users = {
 			'test2',
 		],
 	},
+	"w": {
+		"username": "w",
+		"password": "w",
+		"watched": [
+			{
+				showID: "test",
+				episodesSeen: [
+					"epi1",
+				],
+			},
+		],
+		'toWatch': [
+			'test2',
+		],
+	},
 };
 
 /**
