@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: database.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: database.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module database */
+
+// #region Imports
+const { v4: uuidv4 }	= require('uuid');
+const Show				= require('./classes/Show.js');
+const Episode			= require('./classes/Episode.js');
+const User				= require('./classes/User.js');
+// #endregion
+
+// #region Storage
+// #region Persistant
+/**
+ *
+ * @type {String[]}
+ */
+const userGUIDs = [
+	"demouser",
+];
+
+/**
+ * The collection of users.
+ * @type {Object}
+ */
+const users = {
+	"demo_user": {
+		"username": "demo_user",
+		"password": "password",
+		"watched": [
+			{
+				showID: "test",
+				episodesSeen: [
+					"epi1",
+				],
+			},
+		],
+		'toWatch': [
+			'test2',
+		],
+	},
+	"w": {
+		"username": "w",
+		"password": "w",
+		"watched": [
+			{
+				showID: "test",
+				episodesSeen: [
+					"epi1",
+				],
+			},
+		],
+		'toWatch': [
+			'test2',
+		],
+	},
+};
+
+/**
+ *
+ */
+const showGUIDs = [
+	"test",
+	"test2",
+];
+
+/**
+ * The collection of shows.
+ * @type {Object}
+ */
+const shows = {
+	"test": {
+		name: "TestShow",
+		thumbURL: "",
+		episodes: [
+			{
+				name: "epi1",
+				season: 1,
+				number: 1,
+				length: "23:00",
+			},
+			{
+				name: "epi2",
+				season: 1,
+				number: 2,
+				length: "26:00",
+			},
+		],
+		id: "test",
+	},
+	"test2": {
+		name: "TestShow2",
+		thumbURL: "https://m.media-amazon.com/images/M/MV5BODkzMjhjYTQtYmQyOS00NmZlLTg3Y2UtYjkzN2JkNmRjY2FhXkEyXkFqcGdeQXVyNTM4MDQ5MDc@._V1_.jpg",
+		episodes: [
+			{
+				name: "Shinsei",
+				season: 1,
+				number: 1,
+				length: "24:00",
+			},
+			{
+				name: "Confrontation",
+				season: 1,
+				number: 2,
+				length: "24:00",
+			},
+			{
+				name: "Episode 3",
+				season: 1,
+				number: 3,
+				length: "25:00",
+			},
+			{
+				name: "Episode 4",
+				season: 1,
+				number: 4,
+				length: "26:00",
+			},
+			{
+				name: "Episode 5",
+				season: 1,
+				number: 5,
+				length: "25:00",
+			},
+			{
+				name: "Episode 6",
+				season: 1,
+				number: 6,
+				length: "26:00",
+			},
+			{
+				name: "S2Episode 1",
+				season: 2,
+				number: 1,
+				length: "24:00",
+			},
+			{
+				name: "S2Episode 2",
+				season: 2,
+				number: 2,
+				length: "24:00",
+			},
+			{
+				name: "S2Episode 3",
+				season: 2,
+				number: 3,
+				length: "25:00",
+			},
+			{
+				name: "S2Episode 4",
+				season: 2,
+				number: 4,
+				length: "26:00",
+			},
+			{
+				name: "S2Episode 5",
+				season: 2,
+				number: 5,
+				length: "25:00",
+			},
+			{
+				name: "S2Episode 6",
+				season: 2,
+				number: 6,
+				length: "26:00",
+			},
+		],
+		id: "test2",
+	},
+};
+// #endregion
+// #region Session
+/**
+ *
+ */
+let activeSessionsGUIDs = [/* *currID* */];
+/**
+ *
+ */
+const activeSessions = { /* *currID*: *corrosponding username*, ... */ };
+// #endregion
+// #endregion
+
+// #region Helper Functions
+/**
+ *
+ * @returns {String} A generated id.
+ */
+const testUUID = () => uuidv4();
+
+/**
+ * Checks if the specified username is in use.
+ * @param {String} uName The name to check.
+ * @returns {Boolean} True if taken, false otherwise.
+ */
+const isUsernameTaken = (uName) => (!!(users[uName]));
+
+/**
+ * Checks if the specified username is usable (currently only means not taken).
+ * @param {String} uName The name to check.
+ * @returns {Boolean} True if usable, false otherwise.
+ */
+const isValidUsername = (uName) => isUsernameTaken(uName);
+// #endregion
+
+// #region Gets
+// #region Get User Info
+/**
+ *
+ * @param {String} id The id of the user to get.
+ * @returns {Object}
+ */
+const getUser = (id) => users[id];
+
+/**
+ *
+ * @param {String} id The id of the user to get.
+ * @param {String} sessionID
+ * @returns {Object}
+ */
+const getUserExternal = (id, sessionID) => {
+	if (confirmSession(sessionID, id)) return users[id];
+	throw Error("Failed validation");
+};
+
+/**
+ *
+ * @returns {Object}
+ */
+const getUsers = () => users;
+
+/**
+ *
+ * @returns {User[]} An array of the users.
+ */
+const getUsersArr = () => userGUIDs.map((e) => users[e]);
+// #endregion
+// #region Get Show Info
+/**
+ *
+ * @param {String} id The id of the show to get.
+ * @returns {Object}
+ */
+const getShow = (id) => shows[id];
+
+/**
+ *
+ * @returns {Object}
+ */
+const getShows = () => shows;
+
+/**
+ *
+ * @returns {Show[]}
+ */
+const getShowsArr = () => showGUIDs.map((e) => shows[e]);
+// #endregion
+// #endregion
+// #region Adds
+// #region Add User
+/**
+ *
+ * @param {User} user
+ */
+const addUser = (user) => {
+	if (isUsernameTaken(user.username)) throw new Error("The given username is taken.");
+	userGUIDs.push(user.username);
+	users[user.username] = user;
+};
+
+const createUser = (username, password) => {
+	if (isUsernameTaken(username)) throw new Error("The given username is taken.");
+	else {
+		userGUIDs.push(username);
+		users[username] = new User(username, password);
+		// Auto login new user.
+		return logInUser(username, password);
+	}
+};
+// #endregion
+// #region Add Show
+/**
+ *
+ * @param {Show} show
+ */
+const addShow = (show) => {
+	const id = uuidv4();
+	showGUIDs.push(id);
+	shows[id] = show;
+	return id;
+};
+
+/**
+ *
+ * @param {String} name
+ * @param {String} thumbURL
+ * @param {Episode[]} episodes
+ * @returns {String} The created show's ID.
+ */
+const createShow = (name, thumbURL, episodes) => {
+	const id = uuidv4();
+	showGUIDs.push(id);
+	shows[id] = new Show(name, thumbURL, episodes, id);
+	return id;
+};
+// #endregion
+// #endregion
+// #region USER PROFILE
+/**
+ *
+ * @param {String} username
+ * @param {String} [currSessionID = undefined]
+ * @returns {String} The new Session ID required for all user-specific actions.
+ */
+const assignNewSessionID = (username, oldSessionID = undefined) => {
+	activeSessionsGUIDs = activeSessionsGUIDs.filter((val) => val != oldSessionID);
+	activeSessions[oldSessionID] = undefined;
+	let currSessionID;
+	do {
+		currSessionID = uuidv4();
+	} while (activeSessions[currSessionID]);
+	activeSessionsGUIDs.push(currSessionID);
+	activeSessions[currSessionID] = username;
+	return currSessionID;
+};
+
+/**
+ *
+ * @param {String} username
+ * @param {String} password
+ * @returns {String} The Session ID required for all user-specific actions.
+ */
+const logInUser = (username, password) => {
+	if (users[username] &amp;&amp; users[username].password &amp;&amp; users[username].password == password) {
+		const registeredSessions = activeSessionsGUIDs.filter((e) => activeSessions[e] == username);
+		if (registeredSessions.length != 0) {
+			registeredSessions.forEach((e) => { activeSessions[e] = undefined; });
+		}
+		return assignNewSessionID(username);
+	}
+	if (!users[username]) {
+		throw new Error("The specified user does not exist.");
+	}
+	else if (users[username].password != password) {
+		throw new Error("The password is incorrect.");
+	}
+	else {
+		throw new Error("Unspecified login error.");
+	}
+};
+
+/**
+ *
+ * @param {String} sessionID The id of the client's session.
+ * @param {String} username The username of the client
+ * @param {String} showID The id of the show to add
+ * @throws {Error}
+ */
+const addShowToWatchlist = (sessionID, username, showID) => {
+	if (!(activeSessions[sessionID] == username)) {
+		throw new Error("Session ID is not registered to given username.");
+	}
+	else if (!getShow(showID)) {
+		throw new Error("Invalid ShowID");
+	}
+	else if (!getUser(username)) {
+		throw new Error("Invalid Username");
+	}
+	else if (!users[username].toWatch.includes(showID)) {
+		users[username].toWatch.push(showID);
+	}
+	else {
+		throw new Error("Show already in watchlist");
+	}
+};
+
+/**
+ *
+ * @param {String} sessionID The id of the client's session.
+ * @param {String} username The username of the client
+ * @param {String} showID The id of the show to remove
+ * @throws {Error}
+ */
+const removeShowFromWatchlist = (sessionID, username, showID) => {
+	if (!(activeSessions[sessionID] == username)) {
+		throw new Error("Session ID is not registered to given username.");
+	}
+	else if (!getShow(showID)) {
+		throw new Error("Invalid ShowID");
+	}
+	else if (!getUser(username)) {
+		throw new Error("Invalid Username");
+	}
+	else if (users[username].toWatch.includes(showID)) {
+		users[username].toWatch = users[username].toWatch.filter((elem) => elem != showID);
+	}
+	else {
+		throw new Error("Show not found in watchlist");
+	}
+};
+
+/**
+ *
+ * @param {String} sessID The id of the client's session.
+ * @param {String} uName The username of the client
+ * @param {String} showID The id of the show to check
+ */
+const isShowInWatchlist = (
+	sessID,
+	uName,
+	showID,
+) => activeSessions[sessID] == uName &amp;&amp; users[uName].toWatch.includes(showID);
+// #region RegionName
+// if (!(activeSessions[sessionID] == username)) {
+// 	throw new Error("Session ID is not registered to given username.");
+// }
+// else if (!getShow(showID)) {
+// 	throw new Error("Invalid ShowID");
+// }
+// else if (!getUser(username)) {
+// 	throw new Error("Invalid Username");
+// }
+// else {
+// 	return users[username].toWatch.includes(showID);
+// }
+// #endregion
+
+/**
+ *
+ * @param {String} sessionID
+ * @param {String} user
+ */
+const confirmSession = (sessionID, user) => (activeSessions[sessionID] == user) &amp;&amp; getUser(user);
+// #endregion
+
+module.exports = {
+	getUser: getUserExternal,
+	getShow,
+	getShows,
+	getShowsArr,
+
+	addUser,
+	createUser,
+	addShow,
+	createShow,
+
+	logInUser,
+	addShowToWatchlist,
+	removeShowFromWatchlist,
+	isShowInWatchlist,
+
+	isUsernameTaken,
+	isValidUsername,
+	testUUID,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-database.html">database</a></li><li><a href="module-Episode.html">Episode</a></li><li><a href="module-Show.html">Show</a></li><li><a href="module-User.html">User</a></li><li><a href="module-ValidationError.html">ValidationError</a></li></ul><h3>Classes</h3><ul><li><a href="module-Episode-Episode.html">Episode</a></li><li><a href="module-Show-Show.html">Show</a></li><li><a href="module-User-User.html">User</a></li><li><a href="module-ValidationError-ValidationError.html">ValidationError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#get404">get404</a></li><li><a href="global.html#getAddShowToWatchlist">getAddShowToWatchlist</a></li><li><a href="global.html#getDefaultPNG">getDefaultPNG</a></li><li><a href="global.html#getHTML">getHTML</a></li><li><a href="global.html#getIndexJS">getIndexJS</a></li><li><a href="global.html#getIsShowInWatchlist">getIsShowInWatchlist</a></li><li><a href="global.html#getLoginUser">getLoginUser</a></li><li><a href="global.html#getRemoveShowFromWatchlist">getRemoveShowFromWatchlist</a></li><li><a href="global.html#getShow">getShow</a></li><li><a href="global.html#getShowJS">getShowJS</a></li><li><a href="global.html#getShows">getShows</a></li><li><a href="global.html#getShowsArr">getShowsArr</a></li><li><a href="global.html#getSignUpUser">getSignUpUser</a></li><li><a href="global.html#getStyles">getStyles</a></li><li><a href="global.html#getUser">getUser</a></li><li><a href="global.html#getUUIDTest">getUUIDTest</a></li><li><a href="global.html#parseURLQuery">parseURLQuery</a></li><li><a href="global.html#postShow">postShow</a></li><li><a href="global.html#respond">respond</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Oct 12 2021 00:31:20 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

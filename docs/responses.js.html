@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: responses.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: responses.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// #region Imports
+const http = require('http');
+const fs = require('fs');
+const url = require('url');
+const querystring = require('querystring');
+
+const database = require('./database.js');
+// const Show = require('./classes/Show.js');
+// const Episode = require('./classes/Episode.js');
+// #endregion
+
+const MIME = {
+	json	: 'application/json',
+	css		: 'text/css',
+	html	: 'text/html',
+	png		: 'image/png',
+	js		: 'text/javascript',
+};
+
+const statCode = {
+	200						: "OK",
+	201						: "Created",
+	204						: "No Content",
+	400						: "Bad Request",
+	401						: "Unauthorized",
+	403						: "Forbidden",
+	404						: "Not Found",
+	500						: "Internal Server Error",
+	503						: "Service Unavailable",
+	"OK"					: 200,
+	"Created"				: 201,
+	"No Content"			: 204,
+	"Bad Request"			: 400,
+	"Unauthorized"			: 401,
+	"Forbidden"				: 403,
+	"Not Found"				: 404,
+	"Internal Server Error"	: 500,
+	"Service Unavailable"	: 503,
+	isError					: (code) => code >= 400,
+	isSuccess				: (code) => code >= 200 &amp;&amp; code &lt; 300,
+	isInfo					: (code) => code >= 100 &amp;&amp; code &lt; 200,
+};
+
+// #region Helper Functions
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} request
+ * @returns {ParsedUrlQuery} An object representing the parsed url query.
+ */
+const parseURLQuery = (request) => url.parse(request.url, true).query;
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ * @param {Buffer | Object | String} content
+ * @param {Number} statusCode
+ * @param {String} contentType
+ */
+const respond = (
+	request,
+	response,
+	content,
+	statusCode = 200,
+	contentType = MIME.json,
+) => {
+	response.writeHead(statusCode, { 'Content-Type': contentType });
+	let writeableContent = content
+	if (!(content instanceof Buffer) &amp;&amp; typeof(content) != "string")
+		writeableContent = JSON.stringify(content);
+	response.write(writeableContent);
+	response.end();
+};
+// #endregion
+
+// #region Static Resources
+// #region Get Styles
+const styles = fs.readFileSync(`${__dirname}/../client/index.css`);
+/**
+ * Responds with /client/index.css.
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ */
+const getStyles = (request, response) => respond(request, response, styles, 200, MIME.css);
+// #endregion
+// #region Get HTML
+const page = fs.readFileSync(`${__dirname}/../client/index.html`);
+/**
+ * Responds with /client/index.css.
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ */
+const getHTML = (request, response) => respond(request, response, page, 200, MIME.html);
+// #endregion
+// #region Get IndexJS
+const indJS = fs.readFileSync(`${__dirname}/../client/index.js`);
+/**
+ * Responds with /client/index.js.
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ */
+const getIndexJS = (request, response) => respond(request, response, indJS, 200, MIME.js);
+// #endregion
+// #region Get ShowJS
+const showJS = fs.readFileSync(`${__dirname}/classes/Show.js`);
+/**
+ * Responds with /src/Show.js.
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ */
+const getShowJS = (request, response) => respond(request, response, showJS, 200, MIME.js);
+// #endregion
+// #region Get DefaultPNG
+const defaultPNG = fs.readFileSync(`${__dirname}/../client/default.png`);
+/**
+ * Responds with /client/default.png.
+ * @param {ClientRequest | IncomingMessage} request
+ * @param {ServerResponse} response
+ */
+const getDefaultPNG = (request, response) => respond(request, response, defaultPNG, 200, MIME.png);
+// #endregion
+// #region 404
+/**
+ * Responds with a 404 error.
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const get404 = (req, res) => respond(req, res, JSON.stringify({ id: 404, message: 'Not Found' }), 404);
+// #endregion
+// #endregion
+
+// #region Shows
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const postShow = (req, res) => {
+	if (req.method == 'POST') {
+		let body = '';// let post;
+		req.on('data', (data) => {
+			body += data;
+			if (body.length > 1e6)
+				req.connection.destroy();
+		});
+		req.on('end', () => {
+			let post = JSON.parse(body);
+			// console.log(body);
+			// console.log(post);
+			database.createShow(post.name, post.thumbURL, post.episodes);
+			respond(req, res, JSON.stringify({ id: 201, message: 'Show Created' }), 201);
+		});
+	}
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getShows = (req, res) => {
+	respond(req, res, JSON.stringify(database.getShows()));
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getShow = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	respond(req, res, JSON.stringify(database.getShow(pQ.showID)));
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getShowsArr = (req, res) => {
+	respond(req, res, JSON.stringify(database.getShowsArr()));
+};
+// #endregion
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getUUIDTest = (req, res) => {
+	respond(req, res, JSON.stringify({
+		id: 200,
+		message: 'Success',
+		value: database.testUUID(),
+	}));
+};
+
+// #region User Profile Stuff
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getLoginUser = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		const sessionID = database.logInUser(pQ.username, pQ.password);
+		const response = {
+			id: 200,
+			message: "Successfully Logged In!",
+			sessionID,
+		};
+		respond(req, res, JSON.stringify(response));
+	}
+	catch (error) {
+		const response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	}
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getAddShowToWatchlist = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		/* const sessionID = */database.addShowToWatchlist(pQ.sessionID, pQ.username, pQ.showID);
+		const response = {
+			id: statCode["No Content"],
+			message: "No Content",
+			// sessionID: sessionID,
+		};
+		respond(req, res, JSON.stringify(response), statCode["No Content"]);
+	}
+	catch (error) {
+		const response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	}
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getRemoveShowFromWatchlist = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		/* const sessionID = */database.removeShowFromWatchlist(pQ.sessionID, pQ.username, pQ.showID);
+		const response = {
+			id: statCode["No Content"],
+			message: "No Content",
+			// sessionID: sessionID,
+		};
+		respond(req, res, JSON.stringify(response), statCode["No Content"]);
+	}
+	catch (error) {
+		const response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	}
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getIsShowInWatchlist = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	// try {
+	const val = database.isShowInWatchlist(pQ.sessionID, pQ.username, pQ.showID);
+	const response = {
+		id: statCode[200],
+		message: `Return value: ${val}`,
+		value: val,
+		// sessionID: sessionID,
+	};
+	respond(req, res, JSON.stringify(response));
+	// }
+	// catch (error) {
+	// 	const response = {
+	// 		id: statCode["Internal Server Error"],
+	// 		message: `Internal Server Error; ${error.message}`,
+	// 	};
+	// 	respond(req, res, JSON.stringify(response), statCode["Internal Server Error"]);
+	// }
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getUser = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		respond(req, res, JSON.stringify(database.getUser(pQ.username, pQ.sessionID)));
+	}
+	catch (error) {
+		const response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), 500);
+	}
+};
+
+/**
+ *
+ * @param {ClientRequest | IncomingMessage} req
+ * @param {ServerResponse} res
+ */
+const getSignUpUser = (req, res) => {
+	const pQ = querystring.parse(url.parse(req.url).query);
+	try {
+		respond(req, res, JSON.stringify(database.createUser(pQ.username, pQ.password)));
+	}
+	catch (error) {
+		const response = {
+			id: statCode["Internal Server Error"],
+			message: `Internal Server Error; ${error.message}`,
+		};
+		respond(req, res, JSON.stringify(response), 500);
+	}
+};
+// #endregion
+
+module.exports = {
+	getHTML,
+	getStyles,
+	getIndexJS,
+	getShowJS,
+	getDefaultPNG,
+
+	get404,
+
+	getShow,
+	getShows,
+	getShowsArr,
+	postShow,
+
+	getLoginUser,
+	addToWatchlist: getAddShowToWatchlist,
+	removeFromWatchlist: getRemoveShowFromWatchlist,
+	isInWatchlist: getIsShowInWatchlist,
+	getUser,
+
+	getSignUpUser,
+
+	getUUIDTest,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-database.html">database</a></li><li><a href="module-Episode.html">Episode</a></li><li><a href="module-Show.html">Show</a></li><li><a href="module-User.html">User</a></li><li><a href="module-ValidationError.html">ValidationError</a></li></ul><h3>Classes</h3><ul><li><a href="module-Episode-Episode.html">Episode</a></li><li><a href="module-Show-Show.html">Show</a></li><li><a href="module-User-User.html">User</a></li><li><a href="module-ValidationError-ValidationError.html">ValidationError</a></li></ul><h3>Global</h3><ul><li><a href="global.html#get404">get404</a></li><li><a href="global.html#getAddShowToWatchlist">getAddShowToWatchlist</a></li><li><a href="global.html#getDefaultPNG">getDefaultPNG</a></li><li><a href="global.html#getHTML">getHTML</a></li><li><a href="global.html#getIndexJS">getIndexJS</a></li><li><a href="global.html#getIsShowInWatchlist">getIsShowInWatchlist</a></li><li><a href="global.html#getLoginUser">getLoginUser</a></li><li><a href="global.html#getRemoveShowFromWatchlist">getRemoveShowFromWatchlist</a></li><li><a href="global.html#getShow">getShow</a></li><li><a href="global.html#getShowJS">getShowJS</a></li><li><a href="global.html#getShows">getShows</a></li><li><a href="global.html#getShowsArr">getShowsArr</a></li><li><a href="global.html#getSignUpUser">getSignUpUser</a></li><li><a href="global.html#getStyles">getStyles</a></li><li><a href="global.html#getUser">getUser</a></li><li><a href="global.html#getUUIDTest">getUUIDTest</a></li><li><a href="global.html#parseURLQuery">parseURLQuery</a></li><li><a href="global.html#postShow">postShow</a></li><li><a href="global.html#respond">respond</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Oct 12 2021 00:31:20 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
