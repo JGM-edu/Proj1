@@ -38,6 +38,9 @@ const updateButton = (b) => {
 
 const updateButtons = () => dqsa('.bttn_ChangeWatchlist').forEach((e) => updateButton(e));
 
+/**
+ * Visually updates listing of shows in the database.
+ */
 const updateShowListings = () => {
 	let xhr = new XMLHttpRequest();
 	xhr.onload = () => {
@@ -50,8 +53,25 @@ const updateShowListings = () => {
 };
 
 /**
- * 
- * @param {String} showID 
+ * Visually updates user's to watch list.
+ */
+const updateUser = () => {
+	// window.username = dqs('#username').value;
+	let xhr = new XMLHttpRequest();
+	xhr.onload = (args) => {
+		let obj = JSON.parse(xhr.responseText);
+		dqs("#xhrResults").innerHTML = JSON.stringify(obj, undefined, '\t');
+		// window.sessionID = obj.sessionID;
+		if (statCode.isSuccess(xhr.status))
+			formatUser(obj, dqs('#userInfo'));
+	};
+	xhr.open('GET', `${'/getUser'}?username=${window.username}&sessionID=${window.sessionID}`);
+	xhr.send();
+}
+
+/**
+ * Checks if the specified show is in the user's watchlist.
+ * @param {String} showID The specified show's uuid.
  * @param {Function} callback A function that accepts a boolean that fires on response.
  */
 const isShowInWatchlist = (showID, callback) => {
@@ -226,6 +246,7 @@ const formatUser = (user, container = undefined) => {
 		// currShowEpiList	= document.createElement(showEpiListType),
 		// currEpisode		= document.createElement(episodeType),
 		// addToListBttn	= document.createElement('button');
+	
 	// #region Username
 	let userNameElem = document.createElement(userNameType);
 	userNameElem.innerHTML = user.username;
@@ -389,6 +410,7 @@ const bttn_ChangeWatchlist_OnClick = (evArgs) => {
 					evArgs.target.innerHTML = (isInList) ? "-" : "+";
 					break;
 			}
+			updateUser();
 		};
 		const url = (!isInList) ? "addToFavList" : 'removeFromFavList',
 			sessID = window.sessionID,
@@ -552,7 +574,10 @@ const init = () => {
 				break;
 			case "/postShow":
 				xhr = new XMLHttpRequest();
-				xhr.onload = () => dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+				xhr.onload = () => {
+					dqs("#xhrResults").innerHTML = JSON.stringify(JSON.parse(xhr.responseText), undefined, '\t');
+					updateShowListings();
+				};
 				xhr.open("POST", dqs('#url').value);
 				xhr.send(JSON.stringify({
 					name: 		dqs('#showName').value,
